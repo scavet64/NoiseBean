@@ -20,11 +20,12 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.VoiceState;
 import discord4j.core.object.entity.Member;
 import discord4j.voice.AudioProvider;
-import discord4j.voice.VoiceConnection;
-import java.time.Duration;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +47,23 @@ public class Driver {
 
    public static void main(String[] args) throws Exception {
 
+      Properties prop = new Properties();
+      try (InputStream input = Driver.class.getClassLoader().getResourceAsStream("application.properties")) {
+
+         if (input == null) {
+            System.out.println("Sorry, unable to find config.properties");
+            return;
+         }
+
+         //load a properties file from class path, inside static method
+         prop.load(input);
+
+         System.out.println(prop.getProperty("apikey"));
+         
+      } catch (IOException ex) {
+         ex.printStackTrace();
+      }
+
       // Creates AudioPlayer instances and translates URLs to AudioTrack instances
       final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
       // This is an optimization strategy that Discord4J can utilize. It is not important to understand
@@ -57,22 +75,18 @@ public class Driver {
       // We will be creating LavaPlayerAudioProvider in the next step
       AudioProvider provider = new LavaPlayerAudioProvider(player);
 
-      final DiscordClient client = new DiscordClientBuilder("").build();
+      final DiscordClient client = new DiscordClientBuilder(prop.getProperty("apikey")).build();
 
       client.getEventDispatcher().on(ReadyEvent.class)
-          .subscribe(ready -> System.out.println("Logged in as " + ready.getSelf().getUsername()));
-//      
+          .subscribe(ready -> System.out.println("Logged in as " + ready.getSelf().getUsername()));   
 
-      VoiceConnection temp;
       commands.put("join", event -> Mono.justOrEmpty(event.getMember())
           .flatMap(Member::getVoiceState)
           .flatMap(VoiceState::getChannel)
           // join returns a VoiceConnection which would be required if we were
           // adding disconnection features, but for now we are just ignoring it.
-          .flatMap(channel -> channel.join(spec -> spec.setProvider(provider)).take(Duration.ofHours(1)).)
+          .flatMap(channel -> channel.join(spec -> spec.setProvider(provider)))
           .then());
-
-      commands.put("disconnect", event -> event.getGuild().flatMap());
 
       final TrackScheduler scheduler = new TrackScheduler(player);
       commands.put("play", event -> Mono.justOrEmpty(event.getMessage().getContent())
