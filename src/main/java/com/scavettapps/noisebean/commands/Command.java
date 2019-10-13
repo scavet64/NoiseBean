@@ -5,13 +5,17 @@
  */
 package com.scavettapps.noisebean.commands;
 
-import discord4j.core.event.domain.message.MessageCreateEvent;
-import reactor.core.publisher.Mono;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author vstro
  */
-public interface Command {
-   Mono<Void> execute(MessageCreateEvent event);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Command {
+   String name() default "";
 }
