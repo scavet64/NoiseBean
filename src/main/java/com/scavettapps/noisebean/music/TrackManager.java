@@ -87,6 +87,6 @@ public class TrackManager extends AudioEventAdapter {
     }
 
     public AudioInfo getTrackInfo(AudioTrack track) {
-        return queue.stream().filter(audioInfo -> audioInfo.getTrack().equals(track)).findFirst().orElse(null);
-    }
+		return queue.stream().filter(audioInfo -> audioInfo.getTrack().equals(track)).findFirst().orElse(null);
+	}
 }

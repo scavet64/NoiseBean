@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.scavettapps.noisebean;
+package com.scavettapps.noisebean.core;
+
+import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -18,7 +20,7 @@ import net.dv8tion.jda.api.entities.User;
  *
  * @author vstro
  */
-
+@Service
 public class MessageUtil {
 
     public static boolean canNotTalk(TextChannel channel) {

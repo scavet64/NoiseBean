@@ -5,12 +5,11 @@
  */
 package com.scavettapps.noisebean.commands;
 
-import com.scavettapps.noisebean.Info;
 import com.scavettapps.noisebean.music.AudioInfo;
 import com.scavettapps.noisebean.music.AudioPlayerSendHandler;
 import com.scavettapps.noisebean.music.TrackManager;
-import com.scavettapps.noisebean.MessageSender;
-import com.scavettapps.noisebean.MessageUtil;
+import com.scavettapps.noisebean.core.MessageSender;
+import com.scavettapps.noisebean.core.MessageUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -23,11 +22,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.http.HttpResponse;
 
 import java.util.*;
 
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,6 +36,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+@Component
 @Command(name = "music")
 public class MusicCommand extends AbstractCommand {
 
@@ -47,7 +47,14 @@ public class MusicCommand extends AbstractCommand {
 	private static final String CD = "\uD83D\uDCBF";
 	private static final String DVD = "\uD83D\uDCC0";
 	private static final String MIC = "\uD83C\uDFA4 **|>** ";
-	
+	private static final String POINTRIGHT = "\u23E9";
+	private static final String WARNING_SIGN = "\u26A0";
+	private static final String NO_ENTRY = "\u26D4";
+	private static final String WHITE_HEAVY_CHECKMARK = "\u2705";
+	private static final String RESET = "\uD83D\uDD04";
+	private static final String STOPWATCH = "\u23F1";
+	private static final String HEADPHONE = "\uD83C\uDFA7";
+
 	private static final String QUEUE_INFO = "Info about the Queue: (Size - %d)";
 	private static final String QUEUE_TITLE = "__%s has added %d new track%s to the Queue:__";
 	private static final String QUEUE_DESCRIPTION = "%s **|>**  %s\n%s\n%s %s\n%s";
@@ -64,144 +71,203 @@ public class MusicCommand extends AbstractCommand {
 		case 0: // Show help message
 			sendHelpMessage(chat);
 			break;
-
 		case 1:
-			switch (args[0].toLowerCase()) {
-			case "help":
-			case "commands":
-				sendHelpMessage(chat);
-				break;
-
-			case "now":
-			case "current":
-			case "nowplaying":
-			case "info": // Display song info
-				if (!hasPlayer(guild) || getPlayer(guild).getPlayingTrack() == null) { // No song is playing
-					chat.sendMessage("No song is being played at the moment! *It's your time to shine..*");
-				} else {
-					AudioTrack track = getPlayer(guild).getPlayingTrack();
-					chat.sendEmbed("Track Info", String.format(QUEUE_DESCRIPTION, CD, getOrNull(track.getInfo().title),
-							"\n\u23F1 **|>** `[ " + getTimestamp(track.getPosition()) + " / "
-									+ getTimestamp(track.getInfo().length) + " ]`",
-							"\n" + MIC, getOrNull(track.getInfo().author), "\n\uD83C\uDFA7 **|>**  " + MessageUtil
-									.userDiscrimSet(getTrackManager(guild).getTrackInfo(track).getAuthor().getUser())));
-				}
-				break;
-
-			case "queue":
-				if (!hasPlayer(guild) || getTrackManager(guild).getQueuedTracks().isEmpty()) {
-					chat.sendMessage("The queue is empty! Load a song with **"
-							+ MessageUtil.stripFormatting(Info.PREFIX) + "music play**!");
-				} else {
-					StringBuilder sb = new StringBuilder();
-					Set<AudioInfo> queue = getTrackManager(guild).getQueuedTracks();
-					queue.forEach(audioInfo -> sb.append(buildQueueMessage(audioInfo)));
-					String embedTitle = String.format(QUEUE_INFO, queue.size());
-
-					if (sb.length() <= 1960) {
-						chat.sendEmbed(embedTitle, "**>** " + sb.toString());
-
-					} else {
-						e.getChannel().sendTyping().queue();
-						File qFile = new File("queue.txt");
-						try {
-							FileUtils.write(qFile, sb.toString(), "UTF-8", false);
-							e.getChannel().sendFile(qFile, qFile.getName(), null).queue();
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
-						if (!qFile.delete()) { // Delete the queue file after we're done
-							qFile.deleteOnExit();
-						}
-					}
-
-				}
-				break;
-
-			case "skip":
-				if (isIdle(chat, guild)) {
-					return;
-				}
-
-				if (isCurrentDj(e.getMember())) {
-					forceSkipTrack(guild, chat);
-				} else {
-					AudioInfo info = getTrackManager(guild).getTrackInfo(getPlayer(guild).getPlayingTrack());
-					if (info.hasVoted(e.getAuthor())) {
-						chat.sendMessage("\u26A0 You've already voted to skip this song!");
-					} else {
-						int votes = info.getSkips();
-						if (votes >= 3) { // Skip on 4th vote
-							getPlayer(guild).stopTrack();
-							chat.sendMessage("\u23E9 Skipping current track.");
-						} else {
-							info.addSkip(e.getAuthor());
-							tryToDelete(e.getMessage());
-							chat.sendMessage("**" + MessageUtil.userDiscrimSet(e.getAuthor())
-									+ "** has voted to skip this track! [" + (votes + 1) + "/4]");
-						}
-					}
-				}
-				break;
-
-			case "forceskip":
-				if (isIdle(chat, guild)) {
-					return;
-				}
-
-				if (isCurrentDj(e.getMember()) || isDj(e.getMember())) {
-					forceSkipTrack(guild, chat);
-				} else {
-					chat.sendMessage("You don't have permission to do that!\n" + "Use **"
-							+ MessageUtil.stripFormatting(Info.PREFIX) + "music skip** to cast a vote!");
-				}
-				break;
-
-			case "reset":
-				if (!isDj(e.getMember())) {
-					chat.sendMessage("You don't have the required permissions to do that! [DJ role]");
-				} else {
-					reset(guild);
-					chat.sendMessage("\uD83D\uDD04 Resetting the music player..");
-				}
-				break;
-
-			case "shuffle":
-				if (isIdle(chat, guild)) {
-					return;
-				}
-
-				if (isDj(e.getMember())) {
-					getTrackManager(guild).shuffleQueue();
-					chat.sendMessage("\u2705 Shuffled the queue!");
-				} else {
-					chat.sendMessage("\u26D4 You don't have the permission to do that!");
-				}
-				break;
-			}
-
+			oneArgumentSubcommands(args, e, chat, guild);
+			break;
 		default:
-			String input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-			switch (args[0].toLowerCase()) {
-			case "ytplay": // Query YouTube for a music video
-				input = "ytsearch: " + input;
-				// no break;
-
-			case "play": // Play a track
-				if (args.length <= 1) {
-					chat.sendMessage("Please include a valid source.");
-				} else {
-					loadTrack(input, e.getMember(), e.getMessage(), chat);
-				}
-				break;
-			}
 			break;
 		}
 	}
 
-	@Override
-	public List<String> getAlias() {
-		return Collections.singletonList("music");
+	private void oneArgumentSubcommands(String[] args, MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		String input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+		switch (args[0].toLowerCase()) {
+		case "help":
+		case "commands":
+			sendHelpMessage(chat);
+			break;
+
+		case "now":
+		case "current":
+		case "nowplaying":
+		case "info": // Display song info
+			infoSubcommand(chat, guild);
+			break;
+
+		case "queue":
+			queueSubcommand(e, chat, guild);
+			break;
+
+		case "skip":
+			if (isIdle(chat, guild)) {
+				return;
+			}
+			skipSubcommand(e, chat, guild);
+			break;
+
+		case "forceskip":
+			if (isIdle(chat, guild)) {
+				return;
+			}
+			forceSkipSubcommand(e, chat, guild);
+			break;
+
+		case "reset":
+			resetSubcommand(e, chat, guild);
+			break;
+
+		case "shuffle":
+			if (isIdle(chat, guild)) {
+				return;
+			}
+			shuffleSubcommand(e, chat, guild);
+			break;
+
+		case "ytplay": // Query YouTube for a music video
+			input = "ytsearch: " + input;
+
+		case "play": // Play a track
+			if (args.length <= 1) {
+				chat.sendMessage("Please include a valid source.");
+			} else {
+				loadTrack(input, e.getMember(), e.getMessage(), chat);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * @param e
+	 * @param chat
+	 * @param guild
+	 */
+	private void shuffleSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		if (isDj(e.getMember())) {
+			getTrackManager(guild).shuffleQueue();
+			chat.sendMessage(WHITE_HEAVY_CHECKMARK + " Shuffled the queue!");
+		} else {
+			chat.sendMessage(NO_ENTRY + " You don't have the permission to do that!");
+		}
+	}
+
+	/**
+	 * @param e
+	 * @param chat
+	 * @param guild
+	 */
+	private void resetSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		if (!isDj(e.getMember())) {
+			chat.sendMessage("You don't have the required permissions to do that! [DJ role]");
+		} else {
+			reset(guild);
+			chat.sendMessage(RESET + " Resetting the music player..");
+		}
+	}
+
+	/**
+	 * @param e
+	 * @param chat
+	 * @param guild
+	 */
+	private void forceSkipSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		if (isCurrentDj(e.getMember()) || isDj(e.getMember())) {
+			forceSkipTrack(guild, chat);
+		} else {
+			chat.sendMessage("You don't have permission to do that!\n" + "Use **"
+				+ MessageUtil.stripFormatting(this.prefix) + "music skip** to cast a vote!");
+		}
+	}
+
+	/**
+	 * @param e
+	 * @param chat
+	 * @param guild
+	 */
+	private void skipSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		if (isCurrentDj(e.getMember())) {
+			forceSkipTrack(guild, chat);
+		} else {
+			AudioInfo info = getTrackManager(guild).getTrackInfo(getPlayer(guild).getPlayingTrack());
+			if (info.hasVoted(e.getAuthor())) {
+				chat.sendMessage(WARNING_SIGN + " You've already voted to skip this song!");
+			} else {
+				int votes = info.getSkips();
+				if (votes >= 3) { // Skip on 4th vote
+					getPlayer(guild).stopTrack();
+					chat.sendMessage(POINTRIGHT + " Skipping current track.");
+				} else {
+					info.addSkip(e.getAuthor());
+					tryToDelete(e.getMessage());
+					chat.sendMessage("**" + MessageUtil.userDiscrimSet(e.getAuthor())
+						+ "** has voted to skip this track! [" + (votes + 1) + "/4]");
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param e
+	 * @param chat
+	 * @param guild
+	 */
+	private void queueSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
+		if (!hasPlayer(guild) || getTrackManager(guild).getQueuedTracks().isEmpty()) {
+			chat.sendMessage("The queue is empty! Load a song with **" + MessageUtil.stripFormatting(this.prefix)
+				+ "music play**!");
+		} else {
+			StringBuilder sb = new StringBuilder();
+			Set<AudioInfo> queue = getTrackManager(guild).getQueuedTracks();
+			queue.forEach(audioInfo -> sb.append(buildQueueMessage(audioInfo)));
+			String embedTitle = String.format(QUEUE_INFO, queue.size());
+			chat.sendEmbed(embedTitle, "**>** " + sb.toString());
+		}
+	}
+
+	/**
+	 * @param chat
+	 * @param guild
+	 */
+	private void infoSubcommand(MessageSender chat, Guild guild) {
+		if (!hasPlayer(guild) || getPlayer(guild).getPlayingTrack() == null) { // No song is playing
+			chat.sendMessage("No song is being played at the moment! *It's your time to shine..*");
+		} else {
+			AudioTrack track = getPlayer(guild).getPlayingTrack();
+			StringBuilder trackInfoBuilder = new StringBuilder();
+
+			String trackInfo = trackInfoBuilder
+				.append("\n")
+				.append(STOPWATCH)
+				.append(" **|>** `[ ")
+				.append(getTimestamp(track.getPosition()))
+				.append(" / ")
+				.append(getTimestamp(track.getInfo().length)).append(" ]`").toString();
+
+			StringBuilder authorInfoBuilder = new StringBuilder();
+			String authorInfo = authorInfoBuilder
+				.append("\n")
+				.append(MIC)
+				.append(getOrNull(track.getInfo().author))
+				.toString();
+
+			StringBuilder requestingUserBuilder = new StringBuilder();
+			String reqUser = requestingUserBuilder
+				.append("\n")
+				.append(HEADPHONE)
+				.append(" **|>**  ")
+				.append(MessageUtil.userDiscrimSet(
+					getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
+				.toString();
+
+			chat.sendEmbed("Track Info", String.format(
+				QUEUE_DESCRIPTION,
+				CD,
+				getOrNull(track.getInfo().title),
+				trackInfo,
+				authorInfo,
+				reqUser));
+		}
 	}
 
 	@Override
@@ -211,9 +277,9 @@ public class MusicCommand extends AbstractCommand {
 		}
 		TrackManager manager = getTrackManager(event.getGuild());
 		manager.getQueuedTracks().stream()
-				.filter(info -> !info.getTrack().equals(getPlayer(event.getGuild()).getPlayingTrack())
-						&& info.getAuthor().getUser().equals(event.getMember().getUser()))
-				.forEach(manager::remove);
+			.filter(info -> !info.getTrack().equals(getPlayer(event.getGuild()).getPlayingTrack())
+				&& info.getAuthor().getUser().equals(event.getMember().getUser()))
+			.forEach(manager::remove);
 	}
 
 	@Override
@@ -271,7 +337,7 @@ public class MusicCommand extends AbstractCommand {
 		getPlayer(guild); // Make sure this guild has a player.
 
 		msg.getTextChannel().sendTyping().queue();
-		myManager.loadItemOrdered(guild, identifier, new Class(chat, identifier, guild, author));
+		myManager.loadItemOrdered(guild, identifier, new AudioLoadResultHandlerImpl(chat, identifier, guild, author));
 		tryToDelete(msg);
 	}
 
@@ -281,7 +347,7 @@ public class MusicCommand extends AbstractCommand {
 
 	private boolean isCurrentDj(Member member) {
 		return getTrackManager(member.getGuild()).getTrackInfo(getPlayer(member.getGuild()).getPlayingTrack())
-				.getAuthor().equals(member);
+			.getAuthor().equals(member);
 	}
 
 	private boolean isIdle(MessageSender chat, Guild guild) {
@@ -294,13 +360,12 @@ public class MusicCommand extends AbstractCommand {
 
 	private void forceSkipTrack(Guild guild, MessageSender chat) {
 		getPlayer(guild).stopTrack();
-		chat.sendMessage("\u23E9 Skipping track!");
+		chat.sendMessage(POINTRIGHT + " Skipping track!");
 	}
 
 	private void sendHelpMessage(MessageSender chat) {
 		chat.sendEmbed("DJNoiseBeans",
-			MessageUtil.stripFormatting(Info.PREFIX) 
-				+ "music\n"
+			MessageUtil.stripFormatting(this.prefix) + "music\n"
 				+ "         -> play [url]           - Load a song or a playlist\n"
 				+ "         -> ytplay [query]  - Search YouTube for a video and load it\n"
 				+ "         -> queue                 - View the current queue\n"
@@ -331,14 +396,15 @@ public class MusicCommand extends AbstractCommand {
 	private String getOrNull(String s) {
 		return s.isEmpty() ? "N/A" : s;
 	}
-	
-	private final class Class implements AudioLoadResultHandler {
+
+	private final class AudioLoadResultHandlerImpl implements AudioLoadResultHandler {
+
 		private final MessageSender chat;
 		private final String identifier;
 		private final Guild guild;
 		private final Member author;
 
-		private Class(MessageSender chat, String identifier, Guild guild, Member author) {
+		private AudioLoadResultHandlerImpl(MessageSender chat, String identifier, Guild guild, Member author) {
 			this.chat = chat;
 			this.identifier = identifier;
 			this.guild = guild;
@@ -348,8 +414,14 @@ public class MusicCommand extends AbstractCommand {
 		@Override
 		public void trackLoaded(AudioTrack track) {
 			chat.sendEmbed(String.format(QUEUE_TITLE, MessageUtil.userDiscrimSet(author.getUser()), 1, ""),
-					String.format(QUEUE_DESCRIPTION, CD, getOrNull(track.getInfo().title), "", MIC,
-							getOrNull(track.getInfo().author), ""));
+				String.format(
+					QUEUE_DESCRIPTION,
+					CD,
+					getOrNull(track.getInfo().title),
+					"",
+					MIC,
+					getOrNull(track.getInfo().author),
+					""));
 			getTrackManager(guild).queue(track, author);
 		}
 
@@ -361,9 +433,12 @@ public class MusicCommand extends AbstractCommand {
 				trackLoaded(playlist.getTracks().get(0));
 			} else {
 				chat.sendEmbed(
-						String.format(QUEUE_TITLE, MessageUtil.userDiscrimSet(author.getUser()),
-								Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT), "s"),
-						String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "", ""));
+					String.format(
+						QUEUE_TITLE,
+						MessageUtil.userDiscrimSet(author.getUser()),
+						Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT),
+						"s"),
+					String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "", ""));
 				for (int i = 0; i < Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT); i++) {
 					getTrackManager(guild).queue(playlist.getTracks().get(i), author);
 				}
@@ -372,12 +447,12 @@ public class MusicCommand extends AbstractCommand {
 
 		@Override
 		public void noMatches() {
-			chat.sendEmbed(String.format(ERROR, identifier), "\u26A0 No playable tracks were found.");
+			chat.sendEmbed(String.format(ERROR, identifier), WARNING_SIGN + " No playable tracks were found.");
 		}
 
 		@Override
 		public void loadFailed(FriendlyException exception) {
-			chat.sendEmbed(String.format(ERROR, identifier), "\u26D4 " + exception.getLocalizedMessage());
+			chat.sendEmbed(String.format(ERROR, identifier), NO_ENTRY + " " + exception.getLocalizedMessage());
 		}
 	}
 }

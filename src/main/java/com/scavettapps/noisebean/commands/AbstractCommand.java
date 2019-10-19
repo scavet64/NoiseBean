@@ -5,8 +5,17 @@
  */
 package com.scavettapps.noisebean.commands;
 
-import com.scavettapps.noisebean.MessageSender;
+import com.scavettapps.noisebean.core.MessageSender;
+import com.scavettapps.noisebean.core.MessageUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -19,11 +28,16 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  *
  * @author vstro
  */
+@Service
 public abstract class AbstractCommand extends ListenerAdapter {
+	
+	@Value("${noisebean.prefix}")
+	protected String prefix;
+	
+	@Value("${noisebean.admin-id}")
+	protected String adminId;
 
-    public abstract void executeCommand(String[] args, MessageReceivedEvent e, MessageSender chat);
-
-    public abstract List<String> getAlias();
+	public abstract void executeCommand(String[] args, MessageReceivedEvent event, MessageSender chat);
 
     public boolean allowsPrivate() {
         return false;
@@ -41,10 +55,6 @@ public abstract class AbstractCommand extends ListenerAdapter {
 
         if (e.getAuthor().isBot() || !isValidCommand(e.getMessage()))
             return; // Ignore message if it's not a command or sent by a bot
-//        if (authorExclusive() && !e.getAuthor().getId().equals(Info.AUTHOR_ID))
-//            return; // Ignore if the command is meant to be used by the owner only
-//        if (e.isFromType(ChannelType.TEXT) && MessageUtil.canNotTalk(e.getTextChannel()))
-//            return; // Ignore if we cannot talk in the channel anyway
 
         String[] args = commandArgs(e.getMessage());
         MessageSender chat = new MessageSender(e);
@@ -56,18 +66,17 @@ public abstract class AbstractCommand extends ListenerAdapter {
                 executeCommand(args, e, chat);
             } catch (Exception ex) {
                 ex.printStackTrace();
-//                String msg = "User: **" + MessageUtil.userDiscrimSet(e.getAuthor())
-//                        + "**\nMessage:\n*" + MessageUtil.stripFormatting(e.getMessage().getContentDisplay())
-//                        + "*\n\nError:```java\n" + ex.getMessage() + "```";
-//                if (msg.length() <= 2000) {
-//                    chat.sendPrivateMessageToUser(msg, e.getJDA().getUserById(Info.AUTHOR_ID));
-//                }
+                String msg = "User: **" + MessageUtil.userDiscrimSet(e.getAuthor())
+                        + "**\nMessage:\n*" + MessageUtil.stripFormatting(e.getMessage().getContentDisplay())
+                        + "*\n\nError:```java\n" + ex.getLocalizedMessage() + "```";
+                if (msg.length() <= 2000) {
+                    chat.sendPrivateMessageToUser(msg, e.getJDA().getUserById(adminId));
+                }
             }
         }
     }
 
     private boolean isValidCommand(Message msg) {
-        String prefix = "!";
         if (!msg.getContentRaw().startsWith(prefix))
             return false; // It's not a command if it doesn't start with our prefix
         String cmdName = msg.getContentRaw().substring(prefix.length());
@@ -77,7 +86,13 @@ public abstract class AbstractCommand extends ListenerAdapter {
         if (cmdName.contains("\n")) {
             cmdName = cmdName.substring(0, cmdName.indexOf("\n"));
         }
-        return getAlias().contains(cmdName.toLowerCase());
+        Command[] annotations = this.getClass().getAnnotationsByType(Command.class);
+        if (annotations.length >= 1) {
+        	// The assumption is that there should only ever be one Command annotation.
+        	return Arrays.asList(annotations[0].name()).contains(cmdName.toLowerCase());
+        } else {
+        	return false;
+        }
     }
 
     private String[] commandArgs(Message msg) {
