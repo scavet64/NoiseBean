@@ -1,4 +1,10 @@
 ##############################
+## Project Specific
+##############################
+src/main/resources/application.secrets
+noisebean-db.mv.db
+
+##############################
 ## Java
 ##############################
 .mtj.tmp/
@@ -74,4 +80,3 @@ nb-configuration.xml
 ## OS X
 ##############################
 .DS_Store
-src/main/resources/application.properties
