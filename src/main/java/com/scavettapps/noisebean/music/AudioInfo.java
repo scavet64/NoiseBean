@@ -13,34 +13,34 @@ import net.dv8tion.jda.api.entities.User;
 
 public class AudioInfo {
 
-    private final AudioTrack track;
-    private final Set<String> skips;
-    private final Member author;
+   private final AudioTrack track;
+   private final Set<String> skips;
+   private final Member author;
 
-    AudioInfo(AudioTrack track, Member author) {
-        this.track = track;
-        this.skips = new HashSet<>();
-        this.author = author;
-    }
+   AudioInfo(AudioTrack track, Member author) {
+      this.track = track;
+      this.skips = new HashSet<>();
+      this.author = author;
+   }
 
-    public AudioTrack getTrack() {
-        return track;
-    }
+   public AudioTrack getTrack() {
+      return track;
+   }
 
-    public int getSkips() {
-        return skips.size();
-    }
+   public int getSkips() {
+      return skips.size();
+   }
 
-    public void addSkip(User u) {
-        skips.add(u.getId());
-    }
+   public void addSkip(User u) {
+      skips.add(u.getId());
+   }
 
-    public boolean hasVoted(User u) {
-        return skips.contains(u.getId());
-    }
+   public boolean hasVoted(User u) {
+      return skips.contains(u.getId());
+   }
 
-    public Member getAuthor() {
-        return author;
-    }
+   public Member getAuthor() {
+      return author;
+   }
 
 }

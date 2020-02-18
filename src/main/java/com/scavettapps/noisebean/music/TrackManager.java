@@ -19,6 +19,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -26,67 +28,80 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
  */
 public class TrackManager extends AudioEventAdapter {
 
-    private final AudioPlayer player;
-    private final Queue<AudioInfo> queue;
+   private Logger LOGGER = LoggerFactory.getLogger(TrackManager.class);
 
-    public TrackManager(AudioPlayer player) {
-        this.player = player;
-        this.queue = new LinkedBlockingQueue<>();
-    }
+   private final AudioPlayer player;
+   private final Queue<AudioInfo> queue;
+   private boolean isLooping;
 
-    public void queue(AudioTrack track, Member author) {
-        AudioInfo info = new AudioInfo(track, author);
-        queue.add(info);
+   public TrackManager(AudioPlayer player) {
+      this.player = player;
+      this.queue = new LinkedBlockingQueue<>();
+   }
 
-        if (player.getPlayingTrack() == null) {
-            player.playTrack(track);
-        }
-    }
+   public boolean toggleLoop() {
+      this.isLooping = !this.isLooping;
+      return this.isLooping;
+   }
 
-    @Override
-    public void onTrackStart(AudioPlayer player, AudioTrack track) {
-        AudioInfo info = queue.element();
-        VoiceChannel vChan = info.getAuthor().getVoiceState().getChannel();
-        if (vChan == null) { // User has left all voice channels
-            player.stopTrack();
-        } else {
-            info.getAuthor().getGuild().getAudioManager().openAudioConnection(vChan);
-        }
-    }
+   public void queue(AudioTrack track, Member author) {
+      AudioInfo info = new AudioInfo(track, author);
+      queue.add(info);
 
-    @Override
-    public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        Guild g = queue.poll().getAuthor().getGuild();
-        if (queue.isEmpty()) {
+      if (player.getPlayingTrack() == null) {
+         player.playTrack(track);
+      }
+   }
+
+   @Override
+   public void onTrackStart(AudioPlayer player, AudioTrack track) {
+      AudioInfo info = queue.element();
+      VoiceChannel vChan = info.getAuthor().getVoiceState().getChannel();
+      if (vChan == null) { // User has left all voice channels
+         player.stopTrack();
+      } else {
+         info.getAuthor().getGuild().getAudioManager().openAudioConnection(vChan);
+      }
+   }
+
+   @Override
+   public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+      if (isLooping) {
+         LOGGER.info("Playing looped song");
+         player.playTrack(track.makeClone());
+      } else {
+         Guild g = queue.poll().getAuthor().getGuild();
+         if (queue.isEmpty()) {
             g.getAudioManager().closeAudioConnection();
-        } else {
+         } else {
             player.playTrack(queue.element().getTrack());
-        }
-    }
+         }
+      }
+   }
 
-    public void shuffleQueue() {
-        List<AudioInfo> tQueue = new ArrayList<>(getQueuedTracks());
-        AudioInfo current = tQueue.get(0);
-        tQueue.remove(0);
-        Collections.shuffle(tQueue);
-        tQueue.add(0, current);
-        purgeQueue();
-        queue.addAll(tQueue);
-    }
+   public void shuffleQueue() {
+      List<AudioInfo> tQueue = new ArrayList<>(getQueuedTracks());
+      AudioInfo current = tQueue.get(0);
+      tQueue.remove(0);
+      Collections.shuffle(tQueue);
+      tQueue.add(0, current);
+      purgeQueue();
+      queue.addAll(tQueue);
+   }
 
-    public Set<AudioInfo> getQueuedTracks() {
-        return new LinkedHashSet<>(queue);
-    }
+   public Set<AudioInfo> getQueuedTracks() {
+      return new LinkedHashSet<>(queue);
+   }
 
-    public void purgeQueue() {
-        queue.clear();
-    }
+   public void purgeQueue() {
+      queue.clear();
+   }
 
-    public void remove(AudioInfo entry) {
-        queue.remove(entry);
-    }
+   public void remove(AudioInfo entry) {
+      queue.remove(entry);
+   }
 
-    public AudioInfo getTrackInfo(AudioTrack track) {
-		return queue.stream().filter(audioInfo -> audioInfo.getTrack().equals(track)).findFirst().orElse(null);
-	}
+   public AudioInfo getTrackInfo(AudioTrack track) {
+      return queue.stream().filter(audioInfo -> audioInfo.getTrack().equals(track)).findFirst().orElse(null);
+   }
 }

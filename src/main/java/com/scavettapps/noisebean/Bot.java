@@ -35,53 +35,53 @@ import net.dv8tion.jda.api.entities.Activity;
 @Service
 public class Bot {
 
-	private static final String COULD_NOT_FIND_APPLICATION_SECRETS_FILE = "Could not find application.secrets file";
-	
-	@Autowired
-	private List<? extends AbstractCommand> list;
-	
-	private JDA bot;
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+   private static final String COULD_NOT_FIND_APPLICATION_SECRETS_FILE = "Could not find application.secrets file";
 
-	@PostConstruct
-	public void runBot() throws Exception {
+   @Autowired
+   private List<? extends AbstractCommand> list;
 
-		JDABuilder builder = new JDABuilder(loadApiKey());
-		registerCommands(builder);
+   private JDA bot;
+   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-		// Enable the bulk delete event
-		builder.setBulkDeleteSplittingEnabled(false);
-		// Disable compression (not recommended)
-		// builder.setCompression(Compression.NONE);
-		builder.setActivity(Activity.watching("Anime"));
+   @PostConstruct
+   public void runBot() throws Exception {
 
-		bot = builder.build();
-	}
-	
-	@PreDestroy
-	public void shutdownBot() {
-		bot.shutdownNow();
-	}
+      JDABuilder builder = new JDABuilder(loadApiKey());
+      registerCommands(builder);
 
-	private String loadApiKey() throws ConfigurationException {
-		Properties prop = new Properties();
-		try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.secrets")) {
-			if (input == null) {
-				System.err.println(COULD_NOT_FIND_APPLICATION_SECRETS_FILE);
-				throw new ConfigurationException(COULD_NOT_FIND_APPLICATION_SECRETS_FILE);
-			}
-			prop.load(input);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
+      // Enable the bulk delete event
+      builder.setBulkDeleteSplittingEnabled(false);
+      // Disable compression (not recommended)
+      // builder.setCompression(Compression.NONE);
+      builder.setActivity(Activity.listening("Cozy Music"));
 
-		return prop.getProperty("apikey");
-	}
-	
-	public void registerCommands(JDABuilder builder) throws ConfigurationException {
-		for (AbstractCommand command : list) {
-			logger.info("Registering Command: " + command.getClass().getSimpleName());
-			builder.addEventListeners(command);
-		}
-	}
+      bot = builder.build();
+   }
+
+   @PreDestroy
+   public void shutdownBot() {
+      bot.shutdownNow();
+   }
+
+   private String loadApiKey() throws ConfigurationException {
+      Properties prop = new Properties();
+      try (InputStream input = Bot.class.getClassLoader().getResourceAsStream("application.secrets")) {
+         if (input == null) {
+            System.err.println(COULD_NOT_FIND_APPLICATION_SECRETS_FILE);
+            throw new ConfigurationException(COULD_NOT_FIND_APPLICATION_SECRETS_FILE);
+         }
+         prop.load(input);
+      } catch (IOException ex) {
+         ex.printStackTrace();
+      }
+
+      return prop.getProperty("apikey");
+   }
+
+   public void registerCommands(JDABuilder builder) throws ConfigurationException {
+      for (AbstractCommand command : list) {
+         logger.info("Registering Command: " + command.getClass().getSimpleName());
+         builder.addEventListeners(command);
+      }
+   }
 }
