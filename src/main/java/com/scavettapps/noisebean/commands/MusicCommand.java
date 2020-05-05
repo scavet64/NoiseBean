@@ -10,22 +10,30 @@ import com.scavettapps.noisebean.music.AudioPlayerSendHandler;
 import com.scavettapps.noisebean.music.TrackManager;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
+import static com.scavettapps.noisebean.core.Unicode.CD;
+import static com.scavettapps.noisebean.core.Unicode.HEADPHONE;
+import static com.scavettapps.noisebean.core.Unicode.MIC;
+import static com.scavettapps.noisebean.core.Unicode.NO_ENTRY;
+import static com.scavettapps.noisebean.core.Unicode.POINTRIGHT;
+import static com.scavettapps.noisebean.core.Unicode.RESET;
+import static com.scavettapps.noisebean.core.Unicode.STOPWATCH;
+import static com.scavettapps.noisebean.core.Unicode.WARNING_SIGN;
+import static com.scavettapps.noisebean.core.Unicode.WHITE_HEAVY_CHECKMARK;
+import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_DESCRIPTION;
+import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_INFO;
+import com.scavettapps.noisebean.music.ChatBasedAudioLoadResultHandlerImpl;
+import com.scavettapps.noisebean.music.NoiseBeanAudioManager;
+import com.scavettapps.noisebean.music.NoiseBeanAudioService;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
-import java.io.File;
-import java.io.IOException;
-
 import java.util.*;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import net.dv8tion.jda.api.Permission;
@@ -35,32 +43,22 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 @Command(name = "music")
 public class MusicCommand extends AbstractCommand {
 
-   private static final int PLAYLIST_LIMIT = 200;
-   private static final AudioPlayerManager myManager = new DefaultAudioPlayerManager();
-   private static final Map<String, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>();
+   private final NoiseBeanAudioManager myManager;
+   private final NoiseBeanAudioService noiseBeanAudioService;
 
-   private static final String CD = "\uD83D\uDCBF";
-   private static final String DVD = "\uD83D\uDCC0";
-   private static final String MIC = "\uD83C\uDFA4 **|>** ";
-   private static final String POINTRIGHT = "\u23E9";
-   private static final String WARNING_SIGN = "\u26A0";
-   private static final String NO_ENTRY = "\u26D4";
-   private static final String WHITE_HEAVY_CHECKMARK = "\u2705";
-   private static final String RESET = "\uD83D\uDD04";
-   private static final String STOPWATCH = "\u23F1";
-   private static final String HEADPHONE = "\uD83C\uDFA7";
-
-   private static final String QUEUE_INFO = "Info about the Queue: (Size - %d)";
-   private static final String QUEUE_TITLE = "__%s has added %d new track%s to the Queue:__";
-   private static final String QUEUE_DESCRIPTION = "%s **|>**  %s\n%s\n%s %s\n%s";
-   private static final String ERROR = "Error while loading \"%s\"";
-
-   public MusicCommand() {
+   @Autowired
+   public MusicCommand(
+       NoiseBeanAudioManager myManager,
+       NoiseBeanAudioService noiseBeanAudioService
+   ) {
+      this.myManager = myManager;
+      this.noiseBeanAudioService = noiseBeanAudioService;
       AudioSourceManagers.registerRemoteSources(myManager);
    }
 
@@ -156,7 +154,7 @@ public class MusicCommand extends AbstractCommand {
    }
 
    private void loopSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
-      TrackManager manager = getTrackManager(guild);
+      TrackManager manager = this.noiseBeanAudioService.getTrackManager(guild);
       if (manager == null) {
          chat.sendMessage(WARNING_SIGN + " Nothing to loop!");
          return;
@@ -177,7 +175,7 @@ public class MusicCommand extends AbstractCommand {
     */
    private void shuffleSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
       if (isDj(e.getMember())) {
-         getTrackManager(guild).shuffleQueue();
+         this.noiseBeanAudioService.getTrackManager(guild).shuffleQueue();
          chat.sendMessage(WHITE_HEAVY_CHECKMARK + " Shuffled the queue!");
       } else {
          chat.sendMessage(NO_ENTRY + " You don't have the permission to do that!");
@@ -193,7 +191,7 @@ public class MusicCommand extends AbstractCommand {
       if (!isDj(e.getMember())) {
          chat.sendMessage("You don't have the required permissions to do that! [DJ role]");
       } else {
-         reset(guild);
+         this.noiseBeanAudioService.reset(guild);
          chat.sendMessage(RESET + " Resetting the music player..");
       }
    }
@@ -221,13 +219,15 @@ public class MusicCommand extends AbstractCommand {
       if (isCurrentDj(e.getMember())) {
          forceSkipTrack(guild, chat);
       } else {
-         AudioInfo info = getTrackManager(guild).getTrackInfo(getPlayer(guild).getPlayingTrack());
+         AudioInfo info = this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(
+             this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack()
+         );
          if (info.hasVoted(e.getAuthor())) {
             chat.sendMessage(WARNING_SIGN + " You've already voted to skip this song!");
          } else {
             int votes = info.getSkips();
             if (votes >= 3) { // Skip on 4th vote
-               getPlayer(guild).stopTrack();
+               this.noiseBeanAudioService.getPlayer(guild).stopTrack();
                chat.sendMessage(POINTRIGHT + " Skipping current track.");
             } else {
                info.addSkip(e.getAuthor());
@@ -245,12 +245,12 @@ public class MusicCommand extends AbstractCommand {
     * @param guild
     */
    private void queueSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
-      if (!hasPlayer(guild) || getTrackManager(guild).getQueuedTracks().isEmpty()) {
+      if (!this.noiseBeanAudioService.hasPlayer(guild) || this.noiseBeanAudioService.getTrackManager(guild).getQueuedTracks().isEmpty()) {
          chat.sendMessage("The queue is empty! Load a song with **" + MessageUtil.stripFormatting(this.prefix)
              + "music play**!");
       } else {
          StringBuilder sb = new StringBuilder();
-         Set<AudioInfo> queue = getTrackManager(guild).getQueuedTracks();
+         Set<AudioInfo> queue = this.noiseBeanAudioService.getTrackManager(guild).getQueuedTracks();
          queue.forEach(audioInfo -> sb.append(buildQueueMessage(audioInfo)));
          String embedTitle = String.format(QUEUE_INFO, queue.size());
          chat.sendEmbed(embedTitle, "**>** " + sb.toString());
@@ -262,10 +262,10 @@ public class MusicCommand extends AbstractCommand {
     * @param guild
     */
    private void infoSubcommand(MessageSender chat, Guild guild) {
-      if (!hasPlayer(guild) || getPlayer(guild).getPlayingTrack() == null) { // No song is playing
+      if (!this.noiseBeanAudioService.hasPlayer(guild) || this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack() == null) { // No song is playing
          chat.sendMessage("No song is being played at the moment! *It's your time to shine..*");
       } else {
-         AudioTrack track = getPlayer(guild).getPlayingTrack();
+         AudioTrack track = this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack();
          StringBuilder trackInfoBuilder = new StringBuilder();
 
          String trackInfo = trackInfoBuilder
@@ -289,7 +289,7 @@ public class MusicCommand extends AbstractCommand {
              .append(HEADPHONE)
              .append(" **|>**  ")
              .append(MessageUtil.userDiscrimSet(
-                 getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
+                 this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
              .toString();
 
          chat.sendEmbed("Track Info", String.format(
@@ -304,59 +304,27 @@ public class MusicCommand extends AbstractCommand {
 
    @Override
    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
-      if (!players.containsKey(event.getGuild().getId())) {
+      AudioPlayer player = this.noiseBeanAudioService.getPlayer(event.getGuild());
+
+      if (player == null) {
          return; // Guild doesn't have a music player
       }
-      TrackManager manager = getTrackManager(event.getGuild());
+      TrackManager manager = this.noiseBeanAudioService.getTrackManager(event.getGuild());
       manager.getQueuedTracks().stream()
-          .filter(info -> !info.getTrack().equals(getPlayer(event.getGuild()).getPlayingTrack())
+          .filter(info -> !info.getTrack().equals(this.noiseBeanAudioService.getPlayer(event.getGuild()).getPlayingTrack())
           && info.getAuthor().getUser().equals(event.getMember().getUser()))
           .forEach(manager::remove);
    }
 
    @Override
    public void onGuildLeave(GuildLeaveEvent event) {
-      reset(event.getGuild());
+      this.noiseBeanAudioService.reset(event.getGuild());
    }
 
    private void tryToDelete(Message m) {
       if (m.getGuild().getSelfMember().hasPermission(m.getTextChannel(), Permission.MESSAGE_MANAGE)) {
          m.delete().queue();
       }
-   }
-
-   private boolean hasPlayer(Guild guild) {
-      return players.containsKey(guild.getId());
-   }
-
-   private AudioPlayer getPlayer(Guild guild) {
-      AudioPlayer p;
-      if (hasPlayer(guild)) {
-         p = players.get(guild.getId()).getKey();
-      } else {
-         p = createPlayer(guild);
-      }
-      return p;
-   }
-
-   private TrackManager getTrackManager(Guild guild) {
-      return players.get(guild.getId()).getValue();
-   }
-
-   private AudioPlayer createPlayer(Guild guild) {
-      AudioPlayer nPlayer = myManager.createPlayer();
-      TrackManager manager = new TrackManager(nPlayer);
-      nPlayer.addListener(manager);
-      guild.getAudioManager().setSendingHandler(new AudioPlayerSendHandler(nPlayer));
-      players.put(guild.getId(), new AbstractMap.SimpleEntry<>(nPlayer, manager));
-      return nPlayer;
-   }
-
-   private void reset(Guild guild) {
-      players.remove(guild.getId());
-      getPlayer(guild).destroy();
-      getTrackManager(guild).purgeQueue();
-      guild.getAudioManager().closeAudioConnection();
    }
 
    private void loadTrack(String identifier, Member author, Message msg, MessageSender chat) {
@@ -366,10 +334,13 @@ public class MusicCommand extends AbstractCommand {
       }
 
       Guild guild = author.getGuild();
-      getPlayer(guild); // Make sure this guild has a player.
+      this.noiseBeanAudioService.getPlayer(guild); // Make sure this guild has a player.
 
       msg.getTextChannel().sendTyping().queue();
-      myManager.loadItemOrdered(guild, identifier, new AudioLoadResultHandlerImpl(chat, identifier, guild, author));
+      myManager.loadItemOrdered(guild, 
+          identifier, 
+          new ChatBasedAudioLoadResultHandlerImpl(chat, identifier, guild, author, noiseBeanAudioService.getTrackManager(guild))
+      );
       tryToDelete(msg);
    }
 
@@ -378,12 +349,12 @@ public class MusicCommand extends AbstractCommand {
    }
 
    private boolean isCurrentDj(Member member) {
-      return getTrackManager(member.getGuild()).getTrackInfo(getPlayer(member.getGuild()).getPlayingTrack())
+      return this.noiseBeanAudioService.getTrackManager(member.getGuild()).getTrackInfo(this.noiseBeanAudioService.getPlayer(member.getGuild()).getPlayingTrack())
           .getAuthor().equals(member);
    }
 
    private boolean isIdle(MessageSender chat, Guild guild) {
-      if (!hasPlayer(guild) || getPlayer(guild).getPlayingTrack() == null) {
+      if (!this.noiseBeanAudioService.hasPlayer(guild) || this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack() == null) {
          chat.sendMessage("No music is being played at the moment!");
          return true;
       }
@@ -391,7 +362,7 @@ public class MusicCommand extends AbstractCommand {
    }
 
    private void forceSkipTrack(Guild guild, MessageSender chat) {
-      getPlayer(guild).stopTrack();
+      this.noiseBeanAudioService.getPlayer(guild).stopTrack();
       chat.sendMessage(POINTRIGHT + " Skipping track!");
    }
 
@@ -427,64 +398,5 @@ public class MusicCommand extends AbstractCommand {
 
    private String getOrNull(String s) {
       return s.isEmpty() ? "N/A" : s;
-   }
-
-   private final class AudioLoadResultHandlerImpl implements AudioLoadResultHandler {
-
-      private final MessageSender chat;
-      private final String identifier;
-      private final Guild guild;
-      private final Member author;
-
-      private AudioLoadResultHandlerImpl(MessageSender chat, String identifier, Guild guild, Member author) {
-         this.chat = chat;
-         this.identifier = identifier;
-         this.guild = guild;
-         this.author = author;
-      }
-
-      @Override
-      public void trackLoaded(AudioTrack track) {
-         chat.sendEmbed(String.format(QUEUE_TITLE, MessageUtil.userDiscrimSet(author.getUser()), 1, ""),
-             String.format(
-                 QUEUE_DESCRIPTION,
-                 CD,
-                 getOrNull(track.getInfo().title),
-                 "",
-                 MIC,
-                 getOrNull(track.getInfo().author),
-                 ""));
-         getTrackManager(guild).queue(track, author);
-      }
-
-      @Override
-      public void playlistLoaded(AudioPlaylist playlist) {
-         if (playlist.getSelectedTrack() != null) {
-            trackLoaded(playlist.getSelectedTrack());
-         } else if (playlist.isSearchResult()) {
-            trackLoaded(playlist.getTracks().get(0));
-         } else {
-            chat.sendEmbed(
-                String.format(
-                    QUEUE_TITLE,
-                    MessageUtil.userDiscrimSet(author.getUser()),
-                    Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT),
-                    "s"),
-                String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "", ""));
-            for (int i = 0; i < Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT); i++) {
-               getTrackManager(guild).queue(playlist.getTracks().get(i), author);
-            }
-         }
-      }
-
-      @Override
-      public void noMatches() {
-         chat.sendEmbed(String.format(ERROR, identifier), WARNING_SIGN + " No playable tracks were found.");
-      }
-
-      @Override
-      public void loadFailed(FriendlyException exception) {
-         chat.sendEmbed(String.format(ERROR, identifier), NO_ENTRY + " " + exception.getLocalizedMessage());
-      }
    }
 }

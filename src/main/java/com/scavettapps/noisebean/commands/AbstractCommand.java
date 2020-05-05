@@ -23,12 +23,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author vstro
  */
-@Service
+@Component
 public abstract class AbstractCommand extends ListenerAdapter {
 
    @Value("${noisebean.prefix}")
@@ -104,5 +105,4 @@ public abstract class AbstractCommand extends ListenerAdapter {
       }
       return noPrefix.substring(noPrefix.indexOf(" ") + 1).split("\\s+");
    }
-
 }

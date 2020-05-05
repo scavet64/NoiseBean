@@ -5,6 +5,7 @@
  */
 package com.scavettapps.noisebean.core;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.MessageBuilder;
@@ -21,6 +22,7 @@ import net.dv8tion.jda.api.entities.User;
  * @author vstro
  */
 @Service
+@Slf4j
 public class MessageUtil {
 
    public static boolean canNotTalk(TextChannel channel) {
@@ -45,6 +47,10 @@ public class MessageUtil {
    }
 
    public static void sendMessage(String message, MessageChannel channel) {
+      if (message == null || message.isEmpty()) {
+         log.warn("Tried to send empty message to channel: {}", channel.getName());
+         return;
+      }
       sendMessage(new MessageBuilder().append(filter(message)).build(), channel);
    }
 

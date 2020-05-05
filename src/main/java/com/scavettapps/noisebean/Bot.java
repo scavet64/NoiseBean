@@ -27,18 +27,22 @@ import org.springframework.stereotype.Service;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 
 /**
  *
  * @author vstro
  */
 @Service
+@Order(0)
 public class Bot {
 
    private static final String COULD_NOT_FIND_APPLICATION_SECRETS_FILE = "Could not find application.secrets file";
 
    @Autowired
-   private List<? extends AbstractCommand> list;
+   private List<? extends ListenerAdapter> list;
 
    private JDA bot;
    private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -56,7 +60,7 @@ public class Bot {
       builder.setActivity(Activity.listening("Cozy Music"));
 
       bot = builder.build();
-   }
+   }   
 
    @PreDestroy
    public void shutdownBot() {
@@ -79,7 +83,7 @@ public class Bot {
    }
 
    public void registerCommands(JDABuilder builder) throws ConfigurationException {
-      for (AbstractCommand command : list) {
+      for (ListenerAdapter command : list) {
          logger.info("Registering Command: " + command.getClass().getSimpleName());
          builder.addEventListeners(command);
       }

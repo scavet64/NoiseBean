@@ -5,6 +5,7 @@
  */
 package com.scavettapps.noisebean.core;
 
+import com.scavettapps.noisebean.intro.IntroductionCommand;
 import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,12 +14,15 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author vstro
  */
 public class MessageSender {
+   
+   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MessageSender.class);
 
    private final MessageReceivedEvent event;
 
@@ -27,7 +31,8 @@ public class MessageSender {
    }
 
    public void sendMessage(String msgContent, MessageChannel tChannel) {
-      if (tChannel == null) {
+      if (tChannel == null || msgContent == null || msgContent.isEmpty()) {
+         LOGGER.warn("unable to send message due to illegal argument");
          return;
       }
       MessageUtil.sendMessage(msgContent, tChannel);
