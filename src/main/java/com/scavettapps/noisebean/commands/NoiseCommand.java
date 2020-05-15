@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  * @author Vincent Scavetta.
  */
 @Component
-@Command(name = "noise")
+@Command(name = "noise", description = "Play a noise")
 public class NoiseCommand extends AbstractCommand {
 
    private final NoiseBeanAudioManager myManager;

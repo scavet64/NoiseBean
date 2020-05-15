@@ -24,6 +24,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,10 +40,25 @@ public class LogBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandle
 
    private final Member author;
    private final TrackManager trackManager;
+   private final VoiceChannel vChan;
 
-   public LogBasedAudioLoadResultHandlerImpl(Member author, TrackManager trackManager) {
+   public LogBasedAudioLoadResultHandlerImpl(
+       Member author, 
+       TrackManager trackManager
+   ) {
       this.author = author;
       this.trackManager = trackManager;
+      this.vChan = author.getVoiceState().getChannel();
+   }
+   
+   public LogBasedAudioLoadResultHandlerImpl(
+       Member author, 
+       TrackManager trackManager, 
+       VoiceChannel vChan
+   ) {
+      this.author = author;
+      this.trackManager = trackManager;
+      this.vChan = vChan;
    }
 
    @Override
@@ -58,7 +74,7 @@ public class LogBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandle
               ""
           )
       );
-      trackManager.queue(track, author);
+      trackManager.queue(track, author, vChan);
    }
 
    @Override

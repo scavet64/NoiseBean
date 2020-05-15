@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  * @author Vincent Scavetta.
  */
 @Component
-@Command(name = "outro")
+@Command(name = "outro", description = "Manage user outros")
 public class OutroCommand extends AbstractCommand {
    
    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OutroCommand.class);

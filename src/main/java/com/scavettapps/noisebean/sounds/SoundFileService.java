@@ -93,6 +93,7 @@ public class SoundFileService {
       if (soundFilePath.exists()) {
          deleted = soundFilePath.delete();
       }
+      this.soundFileRepository.delete(sound);
       return deleted;
    }
    

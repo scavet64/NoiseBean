@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,6 +85,20 @@ public class NoiseBeanAudioService {
           guild,
           soundPath,
           new LogBasedAudioLoadResultHandlerImpl(member, trackManager)
+      );
+   }
+   
+   public void playSound(String soundPath, Guild guild, Member member, VoiceChannel vChan) {
+      AudioPlayer player = this.getPlayer(guild);
+      TrackManager trackManager = this.getTrackManager(guild);
+
+      TrackScheduler trackScheduler = new TrackScheduler(player);
+      player.addListener(trackScheduler);
+
+      myManager.loadItemOrdered(
+          guild,
+          soundPath,
+          new LogBasedAudioLoadResultHandlerImpl(member, trackManager, vChan)
       );
    }
 }

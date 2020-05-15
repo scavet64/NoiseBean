@@ -35,23 +35,23 @@ public class MessageUtil {
           || !member.hasPermission(channel, Permission.MESSAGE_WRITE);
    }
 
-   private static void sendMessage(Message message, MessageChannel channel) {
-      if (channel instanceof TextChannel && canNotTalk((TextChannel) channel)) {
-         return;
-      }
-      channel.sendMessage(message).queue(null, null);
+   public static Message sendMessage(MessageEmbed embed, MessageChannel channel) {
+      return sendMessage(new MessageBuilder().setEmbed(embed).build(), channel);
    }
 
-   public static void sendMessage(MessageEmbed embed, MessageChannel channel) {
-      sendMessage(new MessageBuilder().setEmbed(embed).build(), channel);
-   }
-
-   public static void sendMessage(String message, MessageChannel channel) {
+   public static Message sendMessage(String message, MessageChannel channel) {
       if (message == null || message.isEmpty()) {
          log.warn("Tried to send empty message to channel: {}", channel.getName());
-         return;
+         return null;
       }
-      sendMessage(new MessageBuilder().append(filter(message)).build(), channel);
+      return sendMessage(new MessageBuilder().append(filter(message)).build(), channel);
+   }
+   
+   private static Message sendMessage(Message message, MessageChannel channel) {
+      if (channel instanceof TextChannel && canNotTalk((TextChannel) channel)) {
+         return null;
+      }
+      return channel.sendMessage(message).complete();
    }
 
    private static String filter(String msgContent) {

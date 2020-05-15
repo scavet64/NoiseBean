@@ -5,6 +5,7 @@
  */
 package com.scavettapps.noisebean;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.ConfigurationException;
@@ -43,6 +44,9 @@ public class Bot {
 
    @Autowired
    private List<? extends ListenerAdapter> list;
+   
+   @Autowired
+   private EventWaiter eventWaiter;
 
    private JDA bot;
    private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,7 +61,8 @@ public class Bot {
       builder.setBulkDeleteSplittingEnabled(false);
       // Disable compression (not recommended)
       // builder.setCompression(Compression.NONE);
-      builder.setActivity(Activity.listening("Cozy Music"));
+      builder.setActivity(Activity.playing("NoiseBot's Death"));
+      builder.addEventListeners(eventWaiter);
 
       bot = builder.build();
    }   

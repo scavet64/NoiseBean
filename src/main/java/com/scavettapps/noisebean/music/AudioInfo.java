@@ -10,17 +10,20 @@ import java.util.HashSet;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class AudioInfo {
 
    private final AudioTrack track;
    private final Set<String> skips;
    private final Member author;
+   private final VoiceChannel channel;
 
-   AudioInfo(AudioTrack track, Member author) {
+   AudioInfo(AudioTrack track, Member author, VoiceChannel channel) {
       this.track = track;
       this.skips = new HashSet<>();
       this.author = author;
+      this.channel = channel;
    }
 
    public AudioTrack getTrack() {
@@ -41,6 +44,10 @@ public class AudioInfo {
 
    public Member getAuthor() {
       return author;
+   }
+
+   public VoiceChannel getChannel() {
+      return channel;
    }
 
 }

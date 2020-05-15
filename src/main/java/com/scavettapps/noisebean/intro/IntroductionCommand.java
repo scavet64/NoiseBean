@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  * @author Vincent Scavetta.
  */
 @Component
-@Command(name = "intro")
+@Command(name = "intro", description = "Manage user introductions")
 public class IntroductionCommand extends AbstractCommand {
    
    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(IntroductionCommand.class);

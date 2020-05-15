@@ -15,10 +15,8 @@
  */
 package com.scavettapps.noisebean.outro;
 
-import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.intro.IntroductionListener;
 import com.scavettapps.noisebean.music.NoiseBeanAudioService;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
@@ -51,7 +49,12 @@ public class OutroListener extends ListenerAdapter {
       UserOutro outro = this.outroService.getUsersOutro(event.getMember().getId());
       if (outro != null) {
          String soundPath = outro.getSoundFile().getFilePath();
-         this.noiseBeanAudioService.playSound(soundPath, event.getGuild(), event.getMember());
+         this.noiseBeanAudioService.playSound(
+             soundPath, 
+             event.getGuild(), 
+             event.getMember(), 
+             event.getChannelLeft()
+         );
       }
       
       LOGGER.info(

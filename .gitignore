@@ -86,3 +86,5 @@ AudioFiles/
 noisebean-sqlite.db
 
 noisebean.db.mv.db
+
+logs/

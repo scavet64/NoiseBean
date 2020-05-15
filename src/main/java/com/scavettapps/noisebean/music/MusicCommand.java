@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.scavettapps.noisebean.commands;
+package com.scavettapps.noisebean.music;
 
+import com.scavettapps.noisebean.commands.AbstractCommand;
+import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.music.AudioInfo;
-import com.scavettapps.noisebean.music.AudioPlayerSendHandler;
 import com.scavettapps.noisebean.music.TrackManager;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
@@ -24,11 +25,8 @@ import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_INFO;
 import com.scavettapps.noisebean.music.ChatBasedAudioLoadResultHandlerImpl;
 import com.scavettapps.noisebean.music.NoiseBeanAudioManager;
 import com.scavettapps.noisebean.music.NoiseBeanAudioService;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 
@@ -46,7 +44,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
-@Command(name = "music")
+@Command(name = "music", description = "Play music")
 public class MusicCommand extends AbstractCommand {
 
    private final NoiseBeanAudioManager myManager;

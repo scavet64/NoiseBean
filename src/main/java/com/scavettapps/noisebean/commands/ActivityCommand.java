@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Vincent Scavetta.
  */
-@Command(name = "activity")
+@Command(name = "activity", description = "Set the activity of the bot")
 @Slf4j
 @Component
 public class ActivityCommand extends AbstractCommand {

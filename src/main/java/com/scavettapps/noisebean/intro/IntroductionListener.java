@@ -15,15 +15,7 @@
  */
 package com.scavettapps.noisebean.intro;
 
-import com.scavettapps.noisebean.commands.Command;
-import com.scavettapps.noisebean.music.ChatBasedAudioLoadResultHandlerImpl;
-import com.scavettapps.noisebean.music.LogBasedAudioLoadResultHandlerImpl;
-import com.scavettapps.noisebean.music.NoiseBeanAudioManager;
 import com.scavettapps.noisebean.music.NoiseBeanAudioService;
-import com.scavettapps.noisebean.music.TrackManager;
-import com.scavettapps.noisebean.music.TrackScheduler;
-import com.scavettapps.noisebean.sounds.SoundFile;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;

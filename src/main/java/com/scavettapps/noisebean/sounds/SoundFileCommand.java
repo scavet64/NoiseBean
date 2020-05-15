@@ -21,6 +21,7 @@ import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
 import java.util.Collection;
 import java.util.List;
+import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -33,10 +34,11 @@ import org.springframework.stereotype.Component;
  * @author Vincent Scavetta.
  */
 @Component
-@Command(name = "sound")
+@Command(name = "sound", description = "Manage the sounds that the bot can play")
+@Log4j2
 public class SoundFileCommand extends AbstractCommand {
 
-   private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SoundFileCommand.class);
+   //private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(SoundFileCommand.class);
    
    private SoundFileService soundFileService;
 
@@ -101,9 +103,9 @@ public class SoundFileCommand extends AbstractCommand {
       try {
          this.soundFileService.saveSoundFile(args[1], attachments.get(0));
          chat.sendMessage("Successfully added: " + args[1]);
-         LOGGER.info("New sound file [{}] was added by [{}]", args[1], event.getAuthor().getName());
+         log.info("New sound file [{}] was added by [{}]", args[1], event.getAuthor().getName());
       } catch (SoundFileDownloadException ex) {
-         LOGGER.error("Download file error");
+         log.error("Download file error");
          chat.sendMessage("Failed to download the sound file. Please try again later :^(");
       }
    }
@@ -121,13 +123,13 @@ public class SoundFileCommand extends AbstractCommand {
          boolean deleted = this.soundFileService.deleteSoundFile(soundName);
          if (deleted) {
             chat.sendMessage("Successfully removed: " + soundName);
-            LOGGER.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
+            log.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
          } else {
             chat.sendMessage("Could not delete sound file [" + soundName + "] from file system. Contact the DJNoiseBeans admin :^(");
-            LOGGER.info("User [] could not delete sound file [{}] from file system.", event.getAuthor().getName(), soundName);
+            log.info("User [] could not delete sound file [{}] from file system.", event.getAuthor().getName(), soundName);
          }
       } catch (SoundFileNotFoundException ex) {
-         LOGGER.warn("Sound file [{}] did not exist", soundName);
+         log.warn("Sound file [{}] did not exist", soundName);
          chat.sendMessage("Could not find sound with that name :^(");
       }
    }
@@ -145,12 +147,12 @@ public class SoundFileCommand extends AbstractCommand {
       try {
          this.soundFileService.renameSoundFile(soundName, newSoundName);
          chat.sendMessage("Successfully renamed: " + soundName + " to: " + newSoundName);
-         LOGGER.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
+         log.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
       } catch (SoundFileAlreadyExistsException  ex) {
-         LOGGER.warn(ex.getLocalizedMessage());
+         log.warn(ex.getLocalizedMessage());
          chat.sendMessage(ex.getLocalizedMessage());
       } catch (SoundFileNotFoundException  ex) {
-         LOGGER.warn("Sound file [{}] did not exist file error", soundName);
+         log.warn("Sound file [{}] did not exist file error", soundName);
          chat.sendMessage("Could not find sound with that name :^(");
       }
    }
@@ -187,10 +189,10 @@ public class SoundFileCommand extends AbstractCommand {
          
          
          chat.sendMessage("Successfully removed: " + soundName);
-         LOGGER.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
+         log.info("User [] deleted sound file [{}]", event.getAuthor().getName(), soundName);
 
       } catch (SoundFileNotFoundException ex) {
-         LOGGER.warn("Sound file [{}] did not exist", soundName);
+         log.warn("Sound file [{}] did not exist", soundName);
          chat.sendMessage("Could not find sound with that name :^(");
       }
    }

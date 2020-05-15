@@ -43,9 +43,18 @@ public class TrackManager extends AudioEventAdapter {
       this.isLooping = !this.isLooping;
       return this.isLooping;
    }
+   
+   public void queue(AudioTrack track, Member author, VoiceChannel channel) {
+      AudioInfo info = new AudioInfo(track, author, channel);
+      queue.add(info);
+
+      if (player.getPlayingTrack() == null) {
+         player.playTrack(track);
+      }
+   }
 
    public void queue(AudioTrack track, Member author) {
-      AudioInfo info = new AudioInfo(track, author);
+      AudioInfo info = new AudioInfo(track, author, author.getVoiceState().getChannel());
       queue.add(info);
 
       if (player.getPlayingTrack() == null) {
@@ -56,7 +65,7 @@ public class TrackManager extends AudioEventAdapter {
    @Override
    public void onTrackStart(AudioPlayer player, AudioTrack track) {
       AudioInfo info = queue.element();
-      VoiceChannel vChan = info.getAuthor().getVoiceState().getChannel();
+      VoiceChannel vChan = info.getChannel();
       if (vChan == null) { // User has left all voice channels
          player.stopTrack();
       } else {
