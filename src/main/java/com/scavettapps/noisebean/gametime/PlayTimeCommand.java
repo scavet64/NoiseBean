@@ -78,9 +78,18 @@ public class PlayTimeCommand extends AbstractCommand {
       Map<String, Long> playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId());
       
       StringBuilder sb = new StringBuilder();
-      for(String key : playtimes.keySet()) {
+      for (String key : playtimes.keySet()) {        
+         String timeString;
          Long playtime = playtimes.get(key);
-         sb.append(String.format("%s for %d minutes\n", key, playtime));
+         if (playtime > 60) {
+            long hours = playtime / 60;
+            long minLeft = playtime % 60;
+            timeString = String.format("%d hours and %d minutes", hours, minLeft);
+         } else {
+            timeString = String.format("%d minutes", playtime);
+         }
+
+         sb.append(String.format("**%s** for %s\n", key, timeString));
       }
       
       chat.sendEmbed("Game Times", sb.toString());

@@ -46,5 +46,13 @@ public class GameSession {
    
    private long minPlayed;
    
+   public long calculateMinPlayed() {
+      if (sessionEnded == null) {
+         return -1;
+      } else {
+         return ChronoUnit.MINUTES.between(sessionStarted, sessionEnded);
+      }
+   }
+   
 }
 

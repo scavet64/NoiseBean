@@ -56,7 +56,7 @@ public class GameSessionService {
       Instant ended = session.getSessionEnded();
       session.setMinPlayed(ChronoUnit.MINUTES.between(started, ended));
       
-      log.info("Ending session of [{}] for [{}] seconds by [{}]", 
+      log.info("Ending session of [{}] for [{}] min by [{}]", 
           gameName, 
           session.getMinPlayed(), 
           userId
@@ -73,7 +73,7 @@ public class GameSessionService {
       
       long playTime = 0;
       for (GameSession session : sessions) {
-         playTime += session.getMinPlayed();
+         playTime += session.calculateMinPlayed();
       }
       
       return playTime;
@@ -90,7 +90,7 @@ public class GameSessionService {
          }
          
          Long previous = gameToPlayTime.get(gameName);
-         gameToPlayTime.put(gameName, previous + session.getMinPlayed());
+         gameToPlayTime.put(gameName, previous + session.calculateMinPlayed());
       }
       
       return gameToPlayTime;
