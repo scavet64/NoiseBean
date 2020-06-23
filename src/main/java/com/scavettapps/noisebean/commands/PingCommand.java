@@ -17,18 +17,18 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * @author vstro
  */
 @Service
-@Command(name = "ping")
+@Command(name = "ping", description = "pong!")
 public class PingCommand extends AbstractCommand {
 
-	@Override
-	public void executeCommand(String[] args, MessageReceivedEvent event, MessageSender chat) {
-		MessageChannel channel = event.getChannel();
-		channel.sendMessage("Pong!").queue();
-	}
+   @Override
+   public void executeCommand(String[] args, MessageReceivedEvent event, MessageSender chat) {
+      MessageChannel channel = event.getChannel();
+      channel.sendMessage("Pong!").complete();
+   }
 
-	@Override
-	public boolean allowsPrivate() {
-		return true;
-	}
+   @Override
+   public boolean allowsPrivate() {
+      return true;
+   }
 
 }
