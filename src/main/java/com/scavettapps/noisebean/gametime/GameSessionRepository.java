@@ -14,16 +14,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface GameSessionRepository extends JpaRepository<GameSession, Long>{
    
-   Optional<GameSession> findByUserIdAndGameName(String userId, String gameName);
+   Optional<GameSession> findByUserId_IdAndGameName(String userId, String gameName);
    
-   List<GameSession> findAllByUserId(String userId);
+   List<GameSession> findAllByUserId_Id(String userId);
    
    List<GameSession> findAllByGameName(String gameName);
    
-   List<GameSession> findAllByUserIdAndGameNameIgnoreCase(String userId, String gameName);
+   List<GameSession> findAllByUserId_IdAndGameNameIgnoreCase(String userId, String gameName);
    
-   Optional<GameSession> findByUserIdAndSessionEndedIsNull(String userId);
+   Optional<GameSession> findByUserId_IdAndSessionEndedIsNull(String userId);
    
-   Optional<GameSession> findByUserIdAndGameNameAndSessionEndedIsNull(String userId, String gameName);
+   Optional<GameSession> findByUserId_IdAndGameNameAndSessionEndedIsNull(String userId, String gameName);
    
 }

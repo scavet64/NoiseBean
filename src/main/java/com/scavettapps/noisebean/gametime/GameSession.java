@@ -4,12 +4,16 @@
 package com.scavettapps.noisebean.gametime;
 
 import com.scavettapps.noisebean.calltime.*;
+import com.scavettapps.noisebean.users.NoiseBeanUser;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,7 +37,9 @@ public class GameSession {
    private long gameSessionId;
    
    @NotNull
-   private String userId;
+   @ManyToOne
+   @JoinColumn(columnDefinition = "user_id", referencedColumnName = "noisebean_user_id", name = "user_id")
+   private NoiseBeanUser userId;
    
    @NotNull
    private String gameName;
@@ -44,7 +50,8 @@ public class GameSession {
    
    private Instant sessionEnded;
    
-   private long minPlayed;
+   @Builder.Default
+   private long minPlayed = -1;
    
    public long calculateMinPlayed() {
       if (sessionEnded == null) {

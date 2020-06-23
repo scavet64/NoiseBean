@@ -3,6 +3,8 @@
  */
 package com.scavettapps.noisebean.gametime;
 
+import com.scavettapps.noisebean.users.NoiseBeanUser;
+import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -21,15 +23,21 @@ import org.springframework.stereotype.Service;
 public class GameSessionService {
    
    private final GameSessionRepository gameSessionRepository;
+   private final NoiseBeanUserService noiseBeanUserService;
 
    @Autowired
-   public GameSessionService(GameSessionRepository activeChatterRepository) {
+   public GameSessionService(
+       GameSessionRepository activeChatterRepository,
+       NoiseBeanUserService noiseBeanUserService
+   ) {
       this.gameSessionRepository = activeChatterRepository;
+      this.noiseBeanUserService = noiseBeanUserService;
    }
    
    public GameSession startNewSession(String userId, String gameName) {
       // If there is a existing session, end it and start a new one
-      this.gameSessionRepository.findByUserIdAndSessionEndedIsNull(userId)
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      this.gameSessionRepository.findByUserId_IdAndSessionEndedIsNull(user.getId())
           .ifPresent(session -> {
              session.setSessionEnded(Instant.now());
              this.gameSessionRepository.save(session);
@@ -37,16 +45,17 @@ public class GameSessionService {
       
       GameSession newSession = GameSession.builder()
           .gameName(gameName)
-          .userId(userId)
+          .userId(user)
           .build();
       
       return this.gameSessionRepository.save(newSession);
    }
    
    public GameSession endSession(String userId, String gameName) throws GameSessionDoesNotExist {
-      
-      GameSession session = this.gameSessionRepository.findByUserIdAndGameNameAndSessionEndedIsNull(
-          userId, 
+      // Get the user object
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      GameSession session = this.gameSessionRepository.findByUserId_IdAndGameNameAndSessionEndedIsNull(
+          user.getId(), 
           gameName
       ).orElseThrow(() -> new GameSessionDoesNotExist());
       
@@ -66,8 +75,9 @@ public class GameSessionService {
    }
    
    public long getPlaytime(String userId, String gameName) {
-      List<GameSession> sessions = this.gameSessionRepository.findAllByUserIdAndGameNameIgnoreCase(
-          userId, 
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndGameNameIgnoreCase(
+          user.getId(), 
           gameName
       );
       
@@ -81,7 +91,9 @@ public class GameSessionService {
    
    public Map<String, Long> getPlayTimeList(String userId) {
       Map<String, Long> gameToPlayTime = new HashMap<>();
-      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId(userId);
+      
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
       
       for (GameSession session : sessions) {
          String gameName = session.getGameName();

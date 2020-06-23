@@ -3,6 +3,8 @@
  */
 package com.scavettapps.noisebean.gametime;
 
+import com.scavettapps.noisebean.users.NoiseBeanUser;
+import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
@@ -19,11 +21,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class GameSessionListener extends ListenerAdapter {
 
-   private GameSessionService gameSessionService;
+   private final GameSessionService gameSessionService;
+   private final NoiseBeanUserService noiseBeanUserService;
 
    @Autowired
-   public GameSessionListener(GameSessionService gameSessionService) {
+   public GameSessionListener(
+       GameSessionService gameSessionService,
+       NoiseBeanUserService noiseBeanUserService
+   ) {
       this.gameSessionService = gameSessionService;
+      this.noiseBeanUserService = noiseBeanUserService;
    }
 
    @Override
@@ -44,7 +51,7 @@ public class GameSessionListener extends ListenerAdapter {
 
    @Override
    public void onUserActivityStart(UserActivityStartEvent event) {
-      if (event.getNewActivity().getType() == Activity.ActivityType.DEFAULT) {
+      if (event.getNewActivity().getType() == Activity.ActivityType.DEFAULT) {    
          String userId = event.getUser().getId();
          String gameName = event.getNewActivity().getName();
 

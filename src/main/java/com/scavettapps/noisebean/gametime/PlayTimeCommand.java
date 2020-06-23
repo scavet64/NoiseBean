@@ -7,6 +7,8 @@ import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
+import com.scavettapps.noisebean.users.NoiseBeanUser;
+import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import java.util.Arrays;
 import java.util.Map;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +28,9 @@ public class PlayTimeCommand extends AbstractCommand {
    private final GameSessionService gameSessionService;
 
    @Autowired
-   public PlayTimeCommand(GameSessionService gameSessionService) {
+   public PlayTimeCommand(
+       GameSessionService gameSessionService
+   ) {
       this.gameSessionService = gameSessionService;
    } 
    
