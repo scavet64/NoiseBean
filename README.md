@@ -5,7 +5,7 @@ This is a personalized discord bot to be used in my personal discord server. Thi
 ## Features
 
 Currently the bot has the following features:
- -  Playing songs from youtube
+ - Playing songs from youtube
  - Playing custom sounds that users upload
  - Playing a custom sound when a member enters a voice channel
  - Playing a custom sound when a member leaves a voice channel
