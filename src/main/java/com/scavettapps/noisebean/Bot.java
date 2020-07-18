@@ -1,5 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
+/**
+ * Copyright 2020 - Vincent Scavetta - All Rights Reserved
  */
 package com.scavettapps.noisebean;
 
@@ -56,9 +56,7 @@ public class Bot {
 
       // Enable the bulk delete event
       builder.setBulkDeleteSplittingEnabled(false);
-      // Disable compression (not recommended)
-      // builder.setCompression(Compression.NONE);
-      builder.setActivity(Activity.playing("NoiseBot's Death"));
+      builder.setActivity(Activity.listening("Cozy Music"));
       builder.addEventListeners(eventWaiter);
 
       bot = builder.build();
