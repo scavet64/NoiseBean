@@ -16,6 +16,10 @@ Currently the bot has the following features:
 
 ## Release History
 
+* 1.3.1
+    * Implemented sorting for Game Play Times
+	* Addressing an issue regarding voting
+	* Using new version format
 * 0.1.3
     * Refactored the tracking of user information
     * Added the ability to track the gametime sessions for members
