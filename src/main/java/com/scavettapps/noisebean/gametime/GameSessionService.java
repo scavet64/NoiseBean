@@ -7,9 +7,8 @@ import com.scavettapps.noisebean.users.NoiseBeanUser;
 import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,23 +88,27 @@ public class GameSessionService {
       return playTime;
    }
    
-   public Map<String, Long> getPlayTimeList(String userId) {
-      Map<String, Long> gameToPlayTime = new HashMap<>();
+   public List<GamePlayTime> getPlayTimeList(String userId) {
+      List<GamePlayTime> gamePlayTimeList = new ArrayList<>();
       
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
       
       for (GameSession session : sessions) {
-         String gameName = session.getGameName();
-         if (!gameToPlayTime.containsKey(gameName)) {
-            gameToPlayTime.put(gameName, 0L);
-         }
+         var playtime = gamePlayTimeList.stream()
+             .filter(existingPlaytime -> existingPlaytime.getGameName().equals(session.getGameName()))
+             .findFirst()
+             .orElseGet(() -> createAndSaveNewPlayTime(session.getGameName(), gamePlayTimeList));
          
-         Long previous = gameToPlayTime.get(gameName);
-         gameToPlayTime.put(gameName, previous + session.calculateMinPlayed());
+         playtime.addPlayTime(session.calculateMinPlayed());
       }
       
-      return gameToPlayTime;
+      return gamePlayTimeList;
    }
    
+   private GamePlayTime createAndSaveNewPlayTime(String gameName, List<GamePlayTime> list) {
+      var newGameTime = new GamePlayTime(gameName);
+      list.add(newGameTime);
+      return newGameTime;
+   } 
 }

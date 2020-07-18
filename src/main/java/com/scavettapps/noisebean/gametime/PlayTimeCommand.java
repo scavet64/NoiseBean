@@ -7,10 +7,7 @@ import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
-import com.scavettapps.noisebean.users.NoiseBeanUser;
-import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import java.util.Arrays;
-import java.util.Map;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -79,24 +76,15 @@ public class PlayTimeCommand extends AbstractCommand {
          return;
       }
       
-      Map<String, Long> playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId());
+      var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId());
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
       
       StringBuilder sb = new StringBuilder();
-      for (String key : playtimes.keySet()) {        
-         String timeString;
-         Long playtime = playtimes.get(key);
-         if (playtime > 60) {
-            long hours = playtime / 60;
-            long minLeft = playtime % 60;
-            timeString = String.format("%d hours and %d minutes", hours, minLeft);
-         } else {
-            timeString = String.format("%d minutes", playtime);
-         }
-
-         sb.append(String.format("**%s** for %s\n", key, timeString));
+      for (GamePlayTime gamePlayTime : playtimes) {        
+         String timeString = gamePlayTime.getPlayTimeString();
+         sb.append(String.format("**%s** for %s\n", gamePlayTime.getGameName(), timeString));
       }
       
       chat.sendEmbed("Game Times", sb.toString());
-   }
-   
+   }   
 }
