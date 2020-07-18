@@ -1,25 +1,18 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
  */
 package com.scavettapps.noisebean;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.scavettapps.noisebean.commands.AbstractCommand;
-import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.ConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +22,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.springframework.context.annotation.Bean;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.core.annotation.Order;
 
 /**
@@ -53,8 +46,12 @@ public class Bot {
 
    @PostConstruct
    public void runBot() throws Exception {
-
-      JDABuilder builder = new JDABuilder(loadApiKey());
+      
+      JDABuilder builder = JDABuilder.create(
+          loadApiKey(), 
+          GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
+      );
+      
       registerCommands(builder);
 
       // Enable the bulk delete event
