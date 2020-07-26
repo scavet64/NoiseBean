@@ -73,19 +73,19 @@ public class GameSessionService {
       return this.gameSessionRepository.save(session);
    }
    
-   public long getPlaytime(String userId, String gameName) {
+   public GamePlayTime getPlaytime(String userId, String gameName) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndGameNameIgnoreCase(
           user.getId(), 
           gameName
       );
       
-      long playTime = 0;
+      var gamePlayTime = new GamePlayTime(gameName);
       for (GameSession session : sessions) {
-         playTime += session.calculateMinPlayed();
+         gamePlayTime.addPlayTime(session.calculateTimePlayed(ChronoUnit.MILLIS));
       }
       
-      return playTime;
+      return gamePlayTime;
    }
    
    public List<GamePlayTime> getPlayTimeList(String userId) {
@@ -100,7 +100,7 @@ public class GameSessionService {
              .findFirst()
              .orElseGet(() -> createAndSaveNewPlayTime(session.getGameName(), gamePlayTimeList));
          
-         playtime.addPlayTime(session.calculateMinPlayed());
+         playtime.addPlayTime(session.calculateTimePlayed(ChronoUnit.MILLIS));
       }
       
       return gamePlayTimeList;

@@ -31,12 +31,15 @@ public class GamePlayTime {
 
    public String getPlayTimeString() {
       String timeString;
-      if (this.playTime > 60) {
-         long hours = this.playTime / 60;
-         long minLeft = this.playTime % 60;
+      // Convert millis to min
+      long min = this.playTime / 60000;
+      
+      if (min > 60) {
+         long hours = min / 60;
+         long minLeft = min % 60;
          timeString = String.format("%d hours and %d minutes", hours, minLeft);
       } else {
-         timeString = String.format("%d minutes", this.playTime);
+         timeString = String.format("%d minutes", min);
       }
       
       return timeString;

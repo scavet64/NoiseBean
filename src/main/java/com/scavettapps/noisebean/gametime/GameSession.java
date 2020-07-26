@@ -7,6 +7,7 @@ import com.scavettapps.noisebean.calltime.*;
 import com.scavettapps.noisebean.users.NoiseBeanUser;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -58,6 +59,14 @@ public class GameSession {
          return -1;
       } else {
          return ChronoUnit.MINUTES.between(sessionStarted, sessionEnded);
+      }
+   }
+   
+   public long calculateTimePlayed(TemporalUnit unit) {
+      if (sessionEnded == null) {
+         return -1;
+      } else {
+         return unit.between(sessionStarted, sessionEnded);
       }
    }
    

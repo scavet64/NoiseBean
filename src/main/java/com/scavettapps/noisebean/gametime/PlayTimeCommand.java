@@ -20,8 +20,6 @@ import org.springframework.stereotype.Component;
 @Command(name = "playtime", description = "Check your playtime for different games")
 public class PlayTimeCommand extends AbstractCommand {
    
-   private final static String PLAYTIME_FORMAT = "You have played %d minutes of %s";
-   
    private final GameSessionService gameSessionService;
 
    @Autowired
@@ -65,9 +63,11 @@ public class PlayTimeCommand extends AbstractCommand {
       String[] remainingText = Arrays.copyOfRange(args, 1, args.length);
       String gameName = String.join(" ", remainingText);
       
-      long playtime = this.gameSessionService.getPlaytime(event.getAuthor().getId(), gameName);
+      GamePlayTime gamePlayTime = this.gameSessionService.getPlaytime(event.getAuthor().getId(), gameName);
       
-      chat.sendMessage(String.format(PLAYTIME_FORMAT, playtime, gameName));
+      
+      String timeString = gamePlayTime.getPlayTimeString();
+      chat.sendMessage(String.format("You have played **%s** for %s\n", gamePlayTime.getGameName(), timeString));
    }
    
    private void getPlayTimeList(String[] args, MessageReceivedEvent event, MessageSender chat) {
