@@ -49,7 +49,7 @@ public class IntroductionListener extends ListenerAdapter {
 
    @Override
    public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
-      LOGGER.info("Voice Joined");
+      LOGGER.info("{} Joined Voice", event.getMember().getEffectiveName());
 
       UserIntroduction introduction = this.introductionService.getUsersIntro(event.getMember().getId());
 
@@ -66,11 +66,4 @@ public class IntroductionListener extends ListenerAdapter {
 
       super.onGuildVoiceJoin(event);
    }
-
-   @Override
-   public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
-      LOGGER.info("Voice muted");
-      super.onGuildVoiceSelfMute(event);
-   }
-
 }
