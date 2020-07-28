@@ -72,6 +72,11 @@ public class GameSessionService {
       
       return this.gameSessionRepository.save(session);
    }
+
+   public boolean doesSessionExist(String userId, String gameName) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      return this.gameSessionRepository.findByUserId_IdAndSessionEndedIsNull(user.getId()).isPresent();
+   }
    
    public GamePlayTime getPlaytime(String userId, String gameName) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);

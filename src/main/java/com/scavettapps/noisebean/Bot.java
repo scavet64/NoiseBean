@@ -13,6 +13,7 @@ import java.util.Properties;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,7 @@ public class Bot {
       // Enable the bulk delete event
       builder.setBulkDeleteSplittingEnabled(false);
       builder.setActivity(Activity.listening("Cozy Music"));
+      builder.enableCache(CacheFlag.ACTIVITY);
       builder.addEventListeners(eventWaiter);
 
       bot = builder.build();
