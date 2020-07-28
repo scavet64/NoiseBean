@@ -62,11 +62,21 @@ public class SoundFileService {
           () -> new SoundFileNotFoundException()
       );
    }
+
+   public boolean doesSoundExist(String soundFileName) {
+      return this.soundFileRepository.findBySoundFileName(soundFileName).isPresent();
+   }
    
    public SoundFile saveSoundFile(String soundFileName, Attachment attachment) throws SoundFileDownloadException {
       
       try {
          File downloadedFile = new File(SOUND_FILE_PATH_STRING + attachment.getFileName());
+
+         // Does this filename already exist, throw exception if so
+         if (downloadedFile.exists()) {
+            throw new SoundFileDownloadException("Filename Already Exists");
+         }
+
          CompletableFuture<File> future = attachment.downloadToFile(downloadedFile);
          File completedFile = future.get(1, TimeUnit.MINUTES);
          
