@@ -143,6 +143,8 @@ public class MusicCommand extends AbstractCommand {
    private void twoArgumentSubcommands(String[] args, MessageReceivedEvent e, MessageSender chat, Guild guild) {
       String input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
       switch (args[0].toLowerCase()) {
+         case "ytplay": // Query YouTube for a music video
+            input = "ytsearch: " + input;
          case "play": // Play a track
             loadTrack(input, e.getMember(), e.getMessage(), chat);
             break;
