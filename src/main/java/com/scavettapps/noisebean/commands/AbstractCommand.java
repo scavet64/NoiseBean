@@ -105,4 +105,9 @@ public abstract class AbstractCommand extends ListenerAdapter {
       }
       return noPrefix.substring(noPrefix.indexOf(" ") + 1).split("\\s+");
    }
+
+   protected String joinRestOfArguments(String[] args, int from) {
+      String[] remainingText = Arrays.copyOfRange(args, from, args.length);
+      return String.join(" ", remainingText);
+   }
 }

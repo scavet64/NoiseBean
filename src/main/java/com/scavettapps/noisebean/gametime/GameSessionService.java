@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -94,20 +95,30 @@ public class GameSessionService {
    }
    
    public List<GamePlayTime> getPlayTimeList(String userId) {
-      List<GamePlayTime> gamePlayTimeList = new ArrayList<>();
-      
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
-      
+
+      return buildGamePlayTimes(sessions);
+   }
+
+   public List<GamePlayTime> getPlayTimeList(String userId, Instant since) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndSessionStartedAfter(user.getId(), since);
+
+      return buildGamePlayTimes(sessions);
+   }
+
+   @NotNull
+   private List<GamePlayTime> buildGamePlayTimes(List<GameSession> sessions) {
+      List<GamePlayTime> gamePlayTimeList = new ArrayList<>();
       for (GameSession session : sessions) {
          var playtime = gamePlayTimeList.stream()
-             .filter(existingPlaytime -> existingPlaytime.getGameName().equals(session.getGameName()))
-             .findFirst()
-             .orElseGet(() -> createAndSaveNewPlayTime(session.getGameName(), gamePlayTimeList));
-         
+            .filter(existingPlaytime -> existingPlaytime.getGameName().equals(session.getGameName()))
+            .findFirst()
+            .orElseGet(() -> createAndSaveNewPlayTime(session.getGameName(), gamePlayTimeList));
+
          playtime.addPlayTime(session.calculateTimePlayed(ChronoUnit.MILLIS));
       }
-      
       return gamePlayTimeList;
    }
    
