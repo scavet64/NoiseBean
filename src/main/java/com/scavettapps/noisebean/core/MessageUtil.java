@@ -18,7 +18,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 /**
- *
  * @author vstro
  */
 @Service
@@ -31,8 +30,8 @@ public class MessageUtil {
       }
       Member member = channel.getGuild().getSelfMember();
       return member == null
-          || !member.hasPermission(channel, Permission.MESSAGE_READ)
-          || !member.hasPermission(channel, Permission.MESSAGE_WRITE);
+         || !member.hasPermission(channel, Permission.MESSAGE_READ)
+         || !member.hasPermission(channel, Permission.MESSAGE_WRITE);
    }
 
    public static Message sendMessage(MessageEmbed embed, MessageChannel channel) {
@@ -46,7 +45,7 @@ public class MessageUtil {
       }
       return sendMessage(new MessageBuilder().append(filter(message)).build(), channel);
    }
-   
+
    private static Message sendMessage(Message message, MessageChannel channel) {
       if (channel instanceof TextChannel && canNotTalk((TextChannel) channel)) {
          return null;
@@ -56,8 +55,8 @@ public class MessageUtil {
 
    private static String filter(String msgContent) {
       return msgContent.length() > 2000
-          ? "*The output message is over 2000 characters!*"
-          : msgContent.replace("@everyone", "@\u180Eeveryone").replace("@here", "@\u180Ehere");
+         ? "*The output message is over 2000 characters!*"
+         : msgContent.replace("@everyone", "@\u180Eeveryone").replace("@here", "@\u180Ehere");
    }
 
    public static String userDiscrimSet(User u) {
@@ -66,9 +65,9 @@ public class MessageUtil {
 
    public static String stripFormatting(String s) {
       return s.replace("*", "\\*")
-          .replace("`", "\\`")
-          .replace("_", "\\_")
-          .replace("~~", "\\~\\~")
-          .replace(">", "\u180E>");
+         .replace("`", "\\`")
+         .replace("_", "\\_")
+         .replace("~~", "\\~\\~")
+         .replace(">", "\u180E>");
    }
 }
