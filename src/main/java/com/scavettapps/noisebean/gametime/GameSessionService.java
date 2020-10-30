@@ -108,6 +108,20 @@ public class GameSessionService {
       return buildGamePlayTimes(sessions);
    }
 
+   public List<GamePlayTime> getPlayTimeList(String userId, int top) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
+
+      List<GamePlayTime> playtimes =  buildGamePlayTimes(sessions);
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+
+      List<GamePlayTime> limitedList = new ArrayList<>();
+      for (int i = 0; i < top && i < playtimes.size(); i++) {
+         limitedList.add(playtimes.get(i));
+      }
+      return limitedList;
+   }
+
    @NotNull
    private List<GamePlayTime> buildGamePlayTimes(List<GameSession> sessions) {
       List<GamePlayTime> gamePlayTimeList = new ArrayList<>();

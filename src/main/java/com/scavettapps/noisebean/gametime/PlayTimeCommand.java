@@ -56,6 +56,9 @@ public class PlayTimeCommand extends AbstractCommand {
          case "since":
             getPlayTimeListSince(args, event, chat);
             break;
+         case "top":
+            getPlayTimeListTop(args, event, chat);
+            break;
          default:
             break;
       }
@@ -111,6 +114,23 @@ public class PlayTimeCommand extends AbstractCommand {
       var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId(), since);
 
       chat.sendEmbed("Game Times", buildPlaytimeString(playtimes));
+   }
+
+   private void getPlayTimeListTop(String[] args, MessageReceivedEvent event, MessageSender chat) {
+      if (args.length != 2) {
+         chat.sendMessage("Incorrect number of parameters.");
+         return;
+      }
+
+      try {
+         String number = args[1];
+         int top = Integer.parseInt(number);
+
+         var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId(), top);
+         chat.sendEmbed("Game Times", buildPlaytimeString(playtimes));
+      } catch (NumberFormatException nfe) {
+         chat.sendMessage("Malformed number :^()");
+      }
    }
 
    @NotNull
