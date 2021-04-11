@@ -69,7 +69,7 @@ public class MessageSender {
       if (event.isFromType(ChannelType.TEXT)
          && event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_EMBED_LINKS)) {
          // Check to make sure that the embedded description is not longer than 2048 characters
-         List<String> messages = stringSplitter(description, 2048);
+         List<String> messages = stringSplitter(description, 2040);
          messages.forEach((message) -> {
             sentMessages.add(MessageUtil.sendMessage(
                new EmbedBuilder().setTitle(title, null).setDescription(message).build(),
