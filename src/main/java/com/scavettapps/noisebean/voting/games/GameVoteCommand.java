@@ -165,6 +165,11 @@ public class GameVoteCommand extends AbstractCommand {
          return;
       }
       
+      if (args.length < 2) {
+         chat.sendMessage("Please supply a number of voters :^)");
+         return;
+      }
+      
       int numberOfVoters;
       try {
          numberOfVoters = Integer.parseInt(args[1]);
@@ -280,7 +285,7 @@ public class GameVoteCommand extends AbstractCommand {
       }
       
       // Combine remaining text into a single string
-      String[] remainingText = Arrays.copyOfRange(args, 2, args.length);
+      String[] remainingText = Arrays.copyOfRange(args, 1, args.length);
       String optionName = String.join(" ", remainingText);
       
       this.gameVoteService.saveGameVoteOption(optionName);
@@ -310,15 +315,16 @@ public class GameVoteCommand extends AbstractCommand {
       }
       
       // Combine remaining text into a single string
-      String[] remainingText = Arrays.copyOfRange(args, 2, args.length);
+      String[] remainingText = Arrays.copyOfRange(args, 1, args.length);
       String optionName = String.join(" ", remainingText);
       try {
          this.gameVoteService.removeGameVoteOption(optionName);
+         log.info("GameVoteOption removed: [{}]", optionName);
       } catch (VoteOptionDoesNotExistException ex) {
          log.warn("GameVoteOption did not exist: [{}]", optionName);
          chat.sendMessage("Could not find voting option with that name");
       }
-      
-      chat.sendMessage("Added [" + optionName + "] as an option");
+
+      chat.sendMessage("Removed [" + optionName + "] as an option");
    }
 }

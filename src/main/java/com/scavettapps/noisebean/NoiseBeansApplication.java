@@ -1,3 +1,6 @@
+/**
+ * Copyright 2020 - Vincent Scavetta - All Rights Reserved
+ */
 package com.scavettapps.noisebean;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;

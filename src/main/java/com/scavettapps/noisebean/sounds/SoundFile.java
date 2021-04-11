@@ -42,7 +42,7 @@ public class SoundFile {
    
    @NotBlank
    @NotNull
-   @Column(name = "sound_name")
+   @Column(name = "sound_name", unique = true)
    private String soundFileName;
    
    @NotBlank

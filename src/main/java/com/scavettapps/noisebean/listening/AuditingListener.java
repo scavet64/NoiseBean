@@ -44,31 +44,6 @@ public class AuditingListener extends ListenerAdapter {
    }
 
    @Override
-   public void onUserActivityEnd(UserActivityEndEvent event) {
-      super.onUserActivityEnd(event);
-      if (event.getOldActivity().getType() == Activity.ActivityType.DEFAULT) {
-         log.info(
-             "[{}] has ended [{}]",
-             event.getMember().getEffectiveName(),
-             event.getOldActivity().getName()
-         );
-      }
-      
-   }
-
-   @Override
-   public void onUserActivityStart(UserActivityStartEvent event) {
-      super.onUserActivityStart(event);
-      if (event.getNewActivity().getType() == Activity.ActivityType.DEFAULT) {
-         log.info(
-             "[{}] has started [{}]",
-             event.getMember().getEffectiveName(),
-             event.getNewActivity().getName()
-         );
-      }
-   }
-
-   @Override
    public void onUserUpdateOnlineStatus(UserUpdateOnlineStatusEvent event) {
       super.onUserUpdateOnlineStatus(event);
       log.info(

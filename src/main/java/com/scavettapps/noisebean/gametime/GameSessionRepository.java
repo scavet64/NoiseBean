@@ -3,7 +3,7 @@
  */
 package com.scavettapps.noisebean.gametime;
 
-import com.scavettapps.noisebean.calltime.*;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,6 +17,8 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long>{
    Optional<GameSession> findByUserId_IdAndGameName(String userId, String gameName);
    
    List<GameSession> findAllByUserId_Id(String userId);
+
+   List<GameSession> findAllByUserId_IdAndSessionStartedAfter(String userId, Instant instant);
    
    List<GameSession> findAllByGameName(String gameName);
    

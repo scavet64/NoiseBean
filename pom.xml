@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.scavettapps</groupId>
     <artifactId>NoiseBean</artifactId>
-    <version>0.1</version>
+    <version>1.3.4</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -21,12 +21,13 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.3.22</version>
+            <version>1.3.76</version>
         </dependency>
+
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.1.1_108</version>
+            <version>4.2.1_253</version>
         </dependency>
         
         <dependency>
@@ -114,6 +115,11 @@
             <id>central</id>
             <name>bintray</name>
             <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
         </repository>
     </repositories>
     

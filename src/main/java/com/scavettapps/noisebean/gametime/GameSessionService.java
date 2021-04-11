@@ -7,10 +7,10 @@ import com.scavettapps.noisebean.users.NoiseBeanUser;
 import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -73,39 +73,72 @@ public class GameSessionService {
       
       return this.gameSessionRepository.save(session);
    }
+
+   public boolean doesSessionExist(String userId, String gameName) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      return this.gameSessionRepository.findByUserId_IdAndSessionEndedIsNull(user.getId()).isPresent();
+   }
    
-   public long getPlaytime(String userId, String gameName) {
+   public GamePlayTime getPlaytime(String userId, String gameName) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndGameNameIgnoreCase(
           user.getId(), 
           gameName
       );
       
-      long playTime = 0;
+      var gamePlayTime = new GamePlayTime(gameName);
       for (GameSession session : sessions) {
-         playTime += session.calculateMinPlayed();
+         gamePlayTime.addPlayTime(session.calculateTimePlayed(ChronoUnit.MILLIS));
       }
       
-      return playTime;
+      return gamePlayTime;
    }
    
-   public Map<String, Long> getPlayTimeList(String userId) {
-      Map<String, Long> gameToPlayTime = new HashMap<>();
-      
+   public List<GamePlayTime> getPlayTimeList(String userId) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
-      
-      for (GameSession session : sessions) {
-         String gameName = session.getGameName();
-         if (!gameToPlayTime.containsKey(gameName)) {
-            gameToPlayTime.put(gameName, 0L);
-         }
-         
-         Long previous = gameToPlayTime.get(gameName);
-         gameToPlayTime.put(gameName, previous + session.calculateMinPlayed());
+
+      return buildGamePlayTimes(sessions);
+   }
+
+   public List<GamePlayTime> getPlayTimeList(String userId, Instant since) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndSessionStartedAfter(user.getId(), since);
+
+      return buildGamePlayTimes(sessions);
+   }
+
+   public List<GamePlayTime> getPlayTimeList(String userId, int top) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
+
+      List<GamePlayTime> playtimes =  buildGamePlayTimes(sessions);
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+
+      List<GamePlayTime> limitedList = new ArrayList<>();
+      for (int i = 0; i < top && i < playtimes.size(); i++) {
+         limitedList.add(playtimes.get(i));
       }
-      
-      return gameToPlayTime;
+      return limitedList;
+   }
+
+   @NotNull
+   private List<GamePlayTime> buildGamePlayTimes(List<GameSession> sessions) {
+      List<GamePlayTime> gamePlayTimeList = new ArrayList<>();
+      for (GameSession session : sessions) {
+         var playtime = gamePlayTimeList.stream()
+            .filter(existingPlaytime -> existingPlaytime.getGameName().equals(session.getGameName()))
+            .findFirst()
+            .orElseGet(() -> createAndSaveNewPlayTime(session.getGameName(), gamePlayTimeList));
+
+         playtime.addPlayTime(session.calculateTimePlayed(ChronoUnit.MILLIS));
+      }
+      return gamePlayTimeList;
    }
    
+   private GamePlayTime createAndSaveNewPlayTime(String gameName, List<GamePlayTime> list) {
+      var newGameTime = new GamePlayTime(gameName);
+      list.add(newGameTime);
+      return newGameTime;
+   } 
 }

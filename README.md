@@ -4,8 +4,8 @@ This is a personalized discord bot to be used in my personal discord server. Thi
 
 ## Features
 
-Currently the bot has the following features:
- -  Playing songs from youtube
+Currently, the bot has the following features:
+ - Playing songs from youtube
  - Playing custom sounds that users upload
  - Playing a custom sound when a member enters a voice channel
  - Playing a custom sound when a member leaves a voice channel
@@ -15,7 +15,15 @@ Currently the bot has the following features:
  - Creating a list of games and conducting a private election
 
 ## Release History
-
+* 1.3.2
+    * Updated to the latest lavaplayer
+    * Addressed an issue tracking games that implement rich presence
+    * Addressed an issue playing custom sounds
+    * Implemented other minor fixes and tweaks
+* 1.3.1
+    * Implemented sorting for Game Play Times
+	* Addressing an issue regarding voting
+	* Using new version format
 * 0.1.3
     * Refactored the tracking of user information
     * Added the ability to track the gametime sessions for members

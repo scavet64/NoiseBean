@@ -7,11 +7,18 @@ import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
-import com.scavettapps.noisebean.users.NoiseBeanUser;
-import com.scavettapps.noisebean.users.NoiseBeanUserService;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
+
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +29,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Command(name = "playtime", description = "Check your playtime for different games")
 public class PlayTimeCommand extends AbstractCommand {
-   
-   private final static String PLAYTIME_FORMAT = "You have played %d minutes of %s";
    
    private final GameSessionService gameSessionService;
 
@@ -47,6 +52,13 @@ public class PlayTimeCommand extends AbstractCommand {
             break;
          case "list":
             getPlayTimeList(args, event, chat);
+            break;
+         case "since":
+            getPlayTimeListSince(args, event, chat);
+            break;
+         case "top":
+            getPlayTimeListTop(args, event, chat);
+            break;
          default:
             break;
       }
@@ -64,13 +76,14 @@ public class PlayTimeCommand extends AbstractCommand {
          chat.sendMessage("Incorrect number of parameters.");
          return;
       }
+
+      String gameName = this.joinRestOfArguments(args, 1);
       
-      String[] remainingText = Arrays.copyOfRange(args, 1, args.length);
-      String gameName = String.join(" ", remainingText);
+      GamePlayTime gamePlayTime = this.gameSessionService.getPlaytime(event.getAuthor().getId(), gameName);
       
-      long playtime = this.gameSessionService.getPlaytime(event.getAuthor().getId(), gameName);
       
-      chat.sendMessage(String.format(PLAYTIME_FORMAT, playtime, gameName));
+      String timeString = gamePlayTime.getPlayTimeString();
+      chat.sendMessage(String.format("You have played **%s** for %s\n", gamePlayTime.getGameName(), timeString));
    }
    
    private void getPlayTimeList(String[] args, MessageReceivedEvent event, MessageSender chat) {
@@ -79,24 +92,56 @@ public class PlayTimeCommand extends AbstractCommand {
          return;
       }
       
-      Map<String, Long> playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId());
-      
-      StringBuilder sb = new StringBuilder();
-      for (String key : playtimes.keySet()) {        
-         String timeString;
-         Long playtime = playtimes.get(key);
-         if (playtime > 60) {
-            long hours = playtime / 60;
-            long minLeft = playtime % 60;
-            timeString = String.format("%d hours and %d minutes", hours, minLeft);
-         } else {
-            timeString = String.format("%d minutes", playtime);
-         }
+      var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId());
 
-         sb.append(String.format("**%s** for %s\n", key, timeString));
-      }
-      
-      chat.sendEmbed("Game Times", sb.toString());
+      chat.sendEmbed("Game Times", buildPlaytimeString(playtimes));
    }
-   
+
+   private void getPlayTimeListSince(String[] args, MessageReceivedEvent event, MessageSender chat) {
+      if (args.length < 2) {
+         chat.sendMessage("Incorrect number of parameters.");
+         return;
+      }
+
+      String date = this.joinRestOfArguments(args, 1);
+      final DateTimeFormatter FMT = new DateTimeFormatterBuilder()
+         .appendPattern("M/d/yyyy")
+         .parseDefaulting(ChronoField.NANO_OF_DAY, 0)
+         .toFormatter()
+         .withZone(ZoneOffset.UTC);
+      Instant since = FMT.parse(date, Instant::from);
+
+      var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId(), since);
+
+      chat.sendEmbed("Game Times", buildPlaytimeString(playtimes));
+   }
+
+   private void getPlayTimeListTop(String[] args, MessageReceivedEvent event, MessageSender chat) {
+      if (args.length != 2) {
+         chat.sendMessage("Incorrect number of parameters.");
+         return;
+      }
+
+      try {
+         String number = args[1];
+         int top = Integer.parseInt(number);
+
+         var playtimes = this.gameSessionService.getPlayTimeList(event.getAuthor().getId(), top);
+         chat.sendEmbed("Game Times", buildPlaytimeString(playtimes));
+      } catch (NumberFormatException nfe) {
+         chat.sendMessage("Malformed number :^()");
+      }
+   }
+
+   @NotNull
+   private String buildPlaytimeString(List<GamePlayTime> playtimes) {
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+
+      StringBuilder sb = new StringBuilder();
+      for (GamePlayTime gamePlayTime : playtimes) {
+         String timeString = gamePlayTime.getPlayTimeString();
+         sb.append(String.format("**%s** for %s\n", gamePlayTime.getGameName(), timeString));
+      }
+      return sb.toString();
+   }
 }
