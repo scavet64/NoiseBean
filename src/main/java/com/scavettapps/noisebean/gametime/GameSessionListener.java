@@ -35,6 +35,11 @@ public class GameSessionListener extends ListenerAdapter {
 
          String userId = event.getUser().getId();
          String gameName = event.getOldActivity().getName();
+
+         if (gameName.equals("SteamVR")) {
+            log.info("Ignoring SteamVR end for [{}]", userId);
+            return;
+         }
          
          // Check to make sure that the activity didnt update its rich presence
          for (var activity : event.getMember().getActivities()) {
@@ -64,9 +69,15 @@ public class GameSessionListener extends ListenerAdapter {
          String userId = event.getUser().getId();
          String gameName = event.getNewActivity().getName();
 
+         // TODO: Look into fixing this but for now just ignore steamVR since its blocking other VR games from being recorded
+         if (gameName.equals("SteamVR")) {
+            log.info("Ignoring SteamVR start for [{}]", userId);
+            return;
+         }
+
          // Check if a session for this game already exists. If not, start one
          if (this.gameSessionService.doesSessionExist(userId, gameName)) {
-            log.debug("GameSession already existed for user [{}] and game [{}]",
+            log.info("GameSession already existed for user [{}] and game [{}]",
                userId,
                gameName
             );
