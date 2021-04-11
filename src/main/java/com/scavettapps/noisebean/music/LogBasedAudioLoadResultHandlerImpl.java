@@ -15,9 +15,7 @@
  */
 package com.scavettapps.noisebean.music;
 
-import static com.scavettapps.noisebean.core.Unicode.CD;
 import static com.scavettapps.noisebean.core.Unicode.DVD;
-import static com.scavettapps.noisebean.core.Unicode.MIC;
 import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_DESCRIPTION;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -63,17 +61,7 @@ public class LogBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandle
 
    @Override
    public void trackLoaded(AudioTrack track) {
-      LOGGER.info(
-          String.format(
-              QUEUE_DESCRIPTION,
-              CD,
-              getOrNull(track.getInfo().title),
-              "",
-              MIC,
-              getOrNull(track.getInfo().author),
-              ""
-          )
-      );
+      LOGGER.info("Playing Audio track for: " + author.getEffectiveName());
       trackManager.queue(track, author, vChan);
    }
 
