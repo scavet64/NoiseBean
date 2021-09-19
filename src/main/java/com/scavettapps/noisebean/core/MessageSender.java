@@ -84,30 +84,36 @@ public class MessageSender {
 
    private List<String> stringSplitter(String string, int maxLength) {
       List<String> splitStrings = new ArrayList<>();
+
       do {
-         int start = Math.min(maxLength, string.length() - 1);
-         boolean split = false;
-         // Start at the max length and work backwards until we find the first new line break.
-         for (int i = start; i >= 0; i--) {
-            if (string.charAt(i) == '\n') {
-               // Found our breakpoint
-               int breakPoint = i + 1;
-               splitStrings.add(string.substring(0, breakPoint));
-               string = string.substring(breakPoint);
-               split = true;
-               break;
-            }
-         }
-         // If we didnt find one, look for a space I guess
-         if (!split) {
-            for (int i = start; i > 0; i--) {
-               if (string.charAt(i) == ' ') {
+         if (string.length() > maxLength) {
+            int start = Math.min(maxLength, string.length() - 1);
+            boolean split = false;
+            // Start at the max length and work backwards until we find the first new line break.
+            for (int i = start; i >= 0; i--) {
+               if (string.charAt(i) == '\n') {
                   // Found our breakpoint
-                  splitStrings.add(string.substring(0, i));
-                  string = string.substring(start);
+                  int breakPoint = i + 1;
+                  splitStrings.add(string.substring(0, breakPoint));
+                  string = string.substring(breakPoint);
+                  split = true;
                   break;
                }
             }
+            // If we didnt find one, look for a space I guess
+            if (!split) {
+               for (int i = start; i > 0; i--) {
+                  if (string.charAt(i) == ' ') {
+                     // Found our breakpoint
+                     splitStrings.add(string.substring(0, i));
+                     string = string.substring(start);
+                     break;
+                  }
+               }
+            }
+         } else {
+            splitStrings.add(string);
+            string = "";
          }
       } while (string.length() > 0);
       return splitStrings;
