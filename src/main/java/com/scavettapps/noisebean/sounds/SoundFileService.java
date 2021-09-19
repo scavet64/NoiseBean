@@ -39,7 +39,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SoundFileService {
 
-   private final static String SOUND_FILE_PATH_STRING = "./AudioFiles/";
+   private final static String SOUND_FILE_PATH_STRING = "./data/AudioFiles/";
    private final static File SOUND_FILE_PATH = new File(SOUND_FILE_PATH_STRING);
 
    private final SoundFileRepository soundFileRepository;
