@@ -51,8 +51,7 @@ public class UserIntroduction {
    @NotNull
    @Column(name = "user_id")
    private String userId;
-   
-   @NotBlank
+
    @NotNull
    @JoinColumn(name = "sound_file_id", referencedColumnName = "sound_file_id")
    @ManyToOne

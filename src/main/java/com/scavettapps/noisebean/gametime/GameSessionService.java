@@ -50,6 +50,24 @@ public class GameSessionService {
       
       return this.gameSessionRepository.save(newSession);
    }
+
+   public GameSession startNewSession(String userId, String gameName, Instant startTime) {
+      // If there is a existing session, end it and start a new one
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      this.gameSessionRepository.findByUserId_IdAndSessionEndedIsNull(user.getId())
+         .ifPresent(session -> {
+            session.setSessionEnded(Instant.now());
+            this.gameSessionRepository.save(session);
+         });
+
+      GameSession newSession = GameSession.builder()
+         .gameName(gameName)
+         .userId(user)
+         .sessionStarted(startTime)
+         .build();
+
+      return this.gameSessionRepository.save(newSession);
+   }
    
    public GameSession endSession(String userId, String gameName) throws GameSessionDoesNotExist {
       // Get the user object
