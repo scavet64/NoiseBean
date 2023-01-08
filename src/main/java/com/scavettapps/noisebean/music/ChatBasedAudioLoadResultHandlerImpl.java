@@ -42,14 +42,12 @@ public class ChatBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandl
 
    private final MessageSender chat;
    private final String identifier;
-   private final Guild guild;
    private final Member author;
    private final TrackManager trackManager;
 
    public ChatBasedAudioLoadResultHandlerImpl(MessageSender chat, String identifier, Guild guild, Member author, TrackManager trackManager) {
       this.chat = chat;
       this.identifier = identifier;
-      this.guild = guild;
       this.author = author;
       this.trackManager = trackManager;
    }
@@ -57,7 +55,7 @@ public class ChatBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandl
    @Override
    public void trackLoaded(AudioTrack track) {
       chat.sendEmbed(
-          String.format(QUEUE_TITLE, MessageUtil.userDiscrimSet(author.getUser()), 1, ""),
+          String.format(QUEUE_TITLE, MessageUtil.userDiscriminatorSet(author.getUser()), 1, ""),
           String.format(
               QUEUE_DESCRIPTION,
               CD,
@@ -80,7 +78,7 @@ public class ChatBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandl
          chat.sendEmbed(
              String.format(
                  QUEUE_TITLE,
-                 MessageUtil.userDiscrimSet(author.getUser()),
+                 MessageUtil.userDiscriminatorSet(author.getUser()),
                  Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT),
                  "s"),
              String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "", ""));

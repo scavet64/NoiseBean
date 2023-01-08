@@ -16,7 +16,6 @@
 package com.scavettapps.noisebean.intro;
 
 import com.scavettapps.noisebean.sounds.SoundFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,7 +27,6 @@ public class IntroductionService {
 
    private final IntroductionRepository introductionRepository;
 
-   @Autowired
    public IntroductionService(IntroductionRepository introductionRepository) {
       this.introductionRepository = introductionRepository;
    }

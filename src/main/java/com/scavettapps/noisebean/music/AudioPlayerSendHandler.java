@@ -5,10 +5,8 @@
  */
 package com.scavettapps.noisebean.music;
 
-import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
-import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import java.nio.ByteBuffer;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 

@@ -5,5 +5,23 @@
     "[java]": {
         "editor.detectIndentation": false,
         "editor.tabSize": 3
-    }
+    },
+    "cSpell.words": [
+        "CHECKMARK",
+        "Eeveryone",
+        "Ehere",
+        "forceskip",
+        "gametime",
+        "gamevote",
+        "milis",
+        "noisebean",
+        "nowplaying",
+        "outro",
+        "outros",
+        "POINTRIGHT",
+        "Rockstar",
+        "soundfile",
+        "ytplay",
+        "ytsearch"
+    ]
 }

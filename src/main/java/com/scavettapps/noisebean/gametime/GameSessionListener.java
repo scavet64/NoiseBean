@@ -6,12 +6,12 @@ package com.scavettapps.noisebean.gametime;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.util.ArrayList;
 import javax.annotation.Nonnull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,7 +30,6 @@ public class GameSessionListener extends ListenerAdapter {
 
    private final GameSessionService gameSessionService;
 
-   @Autowired
    public GameSessionListener(GameSessionService gameSessionService) {
       this.gameSessionService = gameSessionService;
    }
@@ -69,7 +68,7 @@ public class GameSessionListener extends ListenerAdapter {
          if (isActivityIgnored(gameName, event.getUser()))
             return;
 
-         // Check to make sure that the activity didnt update its rich presence
+         // Check to make sure that the activity didn't update its rich presence
          for (var activity : event.getMember().getActivities()) {
             if (activity.getName().equals(gameName)) {
                log.info(

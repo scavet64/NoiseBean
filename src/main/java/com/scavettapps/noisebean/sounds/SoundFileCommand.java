@@ -24,12 +24,8 @@ import java.util.List;
 
 import com.scavettapps.noisebean.music.NoiseBeanAudioService;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +40,6 @@ public class SoundFileCommand extends AbstractCommand {
    private final NoiseBeanAudioService noiseBeanAudioService;
    private final SoundFileService soundFileService;
 
-   @Autowired
    public SoundFileCommand(
            SoundFileService soundFileService,
            NoiseBeanAudioService noiseBeanAudioService

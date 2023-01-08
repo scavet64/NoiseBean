@@ -19,6 +19,7 @@ import com.scavettapps.noisebean.intro.IntroductionListener;
 import com.scavettapps.noisebean.music.NoiseBeanAudioService;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,7 +45,7 @@ public class OutroListener extends ListenerAdapter {
    }
    
    @Override
-   public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+   public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
       
       UserOutro outro = this.outroService.getUsersOutro(event.getMember().getId());
       if (outro != null) {

@@ -4,9 +4,7 @@
 package com.scavettapps.noisebean.voting;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  *

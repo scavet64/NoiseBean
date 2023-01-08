@@ -38,7 +38,7 @@ public class Bot {
 
    @Autowired
    private List<? extends ListenerAdapter> list;
-   
+
    @Autowired
    private EventWaiter eventWaiter;
 
@@ -47,12 +47,11 @@ public class Bot {
 
    @PostConstruct
    public void runBot() throws Exception {
-      
+
       JDABuilder builder = JDABuilder.create(
-          loadApiKey(), 
-          GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
-      );
-      
+            loadApiKey(),
+            GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
+
       registerCommands(builder);
 
       // Enable the bulk delete event

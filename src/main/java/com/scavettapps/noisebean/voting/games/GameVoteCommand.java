@@ -3,7 +3,6 @@
  */
 package com.scavettapps.noisebean.voting.games;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
 import com.scavettapps.noisebean.core.MessageSender;
@@ -15,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,7 +38,6 @@ public class GameVoteCommand extends AbstractCommand {
 
    private Map<Long, VoteSession> guildToVoteSession = new HashMap<>();
    
-   @Autowired
    public GameVoteCommand(
        GameVoteService gameVoteService
    ) {
@@ -72,7 +70,7 @@ public class GameVoteCommand extends AbstractCommand {
    }
 
    @Override
-   public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+   public void onMessageReactionRemove(@Nonnull MessageReactionRemoveEvent event) {
       super.onMessageReactionRemove(event);
       if (!this.guildToVoteSession.containsKey(event.getGuild().getIdLong())) {
          // There is no voting session. Ignore reaction.
@@ -86,7 +84,7 @@ public class GameVoteCommand extends AbstractCommand {
    }
 
    @Override
-   public void onMessageReceived(MessageReceivedEvent e) {
+   public void onMessageReceived(@Nonnull MessageReceivedEvent e) {
       // Only process this if we have a vote going on, otherwise send to super class and move on
       if (!this.isVoteResponse(e)) {
          super.onMessageReceived(e);
@@ -126,7 +124,7 @@ public class GameVoteCommand extends AbstractCommand {
    }
    
    @Override
-   public void onMessageReactionAdd(MessageReactionAddEvent event) {
+   public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
       super.onMessageReactionAdd(event); //To change body of generated methods, choose Tools | Templates.
       if (!this.guildToVoteSession.containsKey(event.getGuild().getIdLong())) {
          // There is no voting session. Ignore reaction.

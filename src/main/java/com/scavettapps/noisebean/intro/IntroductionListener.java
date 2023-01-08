@@ -19,11 +19,10 @@ import com.scavettapps.noisebean.music.NoiseBeanAudioService;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceSelfMuteEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,7 +37,6 @@ public class IntroductionListener extends ListenerAdapter {
    private final IntroductionService introductionService;
    private final NoiseBeanAudioService noiseBeanAudioService;
 
-   @Autowired
    public IntroductionListener(
        IntroductionService introductionService,
        NoiseBeanAudioService noiseBeanAudioService
@@ -48,7 +46,7 @@ public class IntroductionListener extends ListenerAdapter {
    }
 
    @Override
-   public void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+   public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
       LOGGER.info("{} Joined Voice", event.getMember().getEffectiveName());
 
       UserIntroduction introduction = this.introductionService.getUsersIntro(event.getMember().getId());

@@ -15,8 +15,6 @@
  */
 package com.scavettapps.noisebean.sounds;
 
-import com.google.common.io.Files;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -26,17 +24,13 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message.Attachment;
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Vincent Scavetta.
  */
 @Service
-@Slf4j
 public class SoundFileService {
 
    private final static String SOUND_FILE_PATH_STRING = "./data/AudioFiles/";
@@ -48,7 +42,6 @@ public class SoundFileService {
     * Autowired Constructor for the SoundFileService
     * @param soundFileRepository The sound file repository for CRUD functionality.
     */
-   @Autowired
    public SoundFileService(SoundFileRepository soundFileRepository) {
       this.soundFileRepository = soundFileRepository;
       if (!SOUND_FILE_PATH.exists()) {

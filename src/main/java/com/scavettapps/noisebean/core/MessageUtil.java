@@ -6,6 +6,7 @@
 package com.scavettapps.noisebean.core;
 
 import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Nonnull;
 import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.MessageBuilder;
@@ -46,7 +47,7 @@ public class MessageUtil {
       return sendMessage(new MessageBuilder().append(filter(message)).build(), channel);
    }
 
-   private static Message sendMessage(Message message, MessageChannel channel) {
+   private static Message sendMessage(@Nonnull Message message, MessageChannel channel) {
       if (channel instanceof TextChannel && canNotTalk((TextChannel) channel)) {
          return null;
       }
@@ -59,7 +60,7 @@ public class MessageUtil {
          : msgContent.replace("@everyone", "@\u180Eeveryone").replace("@here", "@\u180Ehere");
    }
 
-   public static String userDiscrimSet(User u) {
+   public static String userDiscriminatorSet(User u) {
       return stripFormatting(u.getName()) + "#" + u.getDiscriminator();
    }
 

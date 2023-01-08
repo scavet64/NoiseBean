@@ -22,10 +22,7 @@ import com.scavettapps.noisebean.core.MessageUtil;
 import com.scavettapps.noisebean.sounds.SoundFile;
 import com.scavettapps.noisebean.sounds.SoundFileNotFoundException;
 import com.scavettapps.noisebean.sounds.SoundFileService;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,12 +33,9 @@ import org.springframework.stereotype.Component;
 @Command(name = "outro", description = "Manage user outros")
 public class OutroCommand extends AbstractCommand {
    
-   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(OutroCommand.class);
-   
    private final OutroService introductionService;
    private final SoundFileService soundFileService;
 
-   @Autowired
    public OutroCommand(
        OutroService introductionService,
        SoundFileService soundFileService
@@ -52,8 +46,6 @@ public class OutroCommand extends AbstractCommand {
 
    @Override
    public void executeCommand(String[] args, MessageReceivedEvent event, MessageSender chat) {
-      Guild guild = event.getGuild();
-
       if (args.length == 0) {
          sendHelpMessage(chat);
          return;
