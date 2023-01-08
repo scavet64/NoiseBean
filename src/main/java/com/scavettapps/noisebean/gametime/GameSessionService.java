@@ -113,6 +113,15 @@ public class GameSessionService {
       return playtimes;
    }
 
+   public List<GamePlayTime> getPlayTimeList(String userId, Instant from, Instant to) {
+      NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
+      List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndSessionStartedAfterAndSessionStartedBefore(user.getId(), from, to);
+
+      var playtimes = buildGamePlayTimes(sessions);
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+      return playtimes;
+   }
+
    public List<GamePlayTime> getPlayTimeList(String userId, Instant since) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndSessionStartedAfter(user.getId(), since);

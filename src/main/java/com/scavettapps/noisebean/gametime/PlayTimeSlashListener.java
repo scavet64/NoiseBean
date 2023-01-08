@@ -26,9 +26,11 @@ import net.dv8tion.jda.api.interactions.components.Button;
 public class PlayTimeSlashListener extends ListenerAdapter {
 
    public static final String PLAYTIME_SINCE_FROM_OPTION = "from";
+   public static final String PLAYTIME_SINCE_TO_OPTION = "to";
 
    private static final String ALL_PLAYTIME_TITLE_FORMAT = "All Playtimes for @%s";
    private static final String PLAYTIME_SINCE_TITLE_FORMAT = "Playtimes for %s since %s";
+   private static final String PLAYTIME_BETWEEN_TITLE_FORMAT = "Playtimes for %s between %s and %s";
 
    private static final String NEXT_BUTTON_NAME = "next";
    private static final String PREVIOUS_BUTTON_NAME = "previous";
@@ -40,6 +42,9 @@ public class PlayTimeSlashListener extends ListenerAdapter {
 
    private final String playtimesSinceTitleRegex = "Playtimes for (.*) since (.*)";
    private final Pattern playtimesSinceTitleRegexPattern = Pattern.compile(playtimesSinceTitleRegex);
+
+   private final String playtimesBetweenTitleRegex = "Playtimes for (.*) between (.*) and (.*)";
+   private final Pattern playtimesBetweenTitleRegexPattern = Pattern.compile(playtimesBetweenTitleRegex);
 
    private final DateTimeFormatter datetimeFormatter = new DateTimeFormatterBuilder()
          .appendPattern("M/d/yyyy")
@@ -72,7 +77,12 @@ public class PlayTimeSlashListener extends ListenerAdapter {
             processGetAllPlaytimes(event, userToLookup);
             break;
          case "since":
-            processGetPlaytimesSinceDate(event, userToLookup, event.getOption(PLAYTIME_SINCE_FROM_OPTION).getAsString());
+            String from = event.getOption(PLAYTIME_SINCE_FROM_OPTION).getAsString();
+            String to = null;
+            if (event.getOption(PLAYTIME_SINCE_TO_OPTION) != null) {
+               to = event.getOption(PLAYTIME_SINCE_TO_OPTION).getAsString();
+            }
+            processGetPlaytimesSinceDate(event, userToLookup, from, to);
             break;
          default:
             break;
@@ -92,7 +102,7 @@ public class PlayTimeSlashListener extends ListenerAdapter {
       var titleString = String.format(ALL_PLAYTIME_TITLE_FORMAT, user.getName());
 
       var embed = buildPlaytimeEmbed(titleString, pageToUse, 1, partitionedPlaytimes.size());
-      var buttons = buildPageableButtons();
+      var buttons = buildPageableButtons(1, partitionedPlaytimes.size());
       event.replyEmbeds(embed).setEphemeral(false).addActionRow(buttons).queue();
    }
 
@@ -103,10 +113,19 @@ public class PlayTimeSlashListener extends ListenerAdapter {
     * @param user The user making the action
     * @param sinceString The date since
     */
-   private void processGetPlaytimesSinceDate(SlashCommandEvent event, User user, String sinceString) {
+   private void processGetPlaytimesSinceDate(SlashCommandEvent event, User user, @Nonnull String sinceString, String toString) {
       Instant since = datetimeFormatter.parse(sinceString, Instant::from);
+      List<GamePlayTime> playtimes;
+      String title;
+      if (toString != null) {
+         Instant to = datetimeFormatter.parse(toString, Instant::from);
+         playtimes = this.gameSessionService.getPlayTimeList(user.getId(), since, to);
+         title = String.format(PLAYTIME_BETWEEN_TITLE_FORMAT, user.getName(), sinceString, toString);
+      } else {
+         playtimes = this.gameSessionService.getPlayTimeList(user.getId(), since);
+         title = String.format(PLAYTIME_SINCE_TITLE_FORMAT, user.getName(), sinceString);
+      }
 
-      var playtimes = this.gameSessionService.getPlayTimeList(user.getId(), since);
       if (playtimes.isEmpty()) {
          event.reply("You didn't play anything :^O").queue();
          return;
@@ -115,11 +134,13 @@ public class PlayTimeSlashListener extends ListenerAdapter {
       var partitionedPlaytimes = Lists.partition(playtimes, 25);
       var pageToUse = partitionedPlaytimes.get(0);
 
-      var title = String.format(PLAYTIME_SINCE_TITLE_FORMAT, user.getName(), sinceString);
-
       var embed = buildPlaytimeEmbed(title, pageToUse, 1, partitionedPlaytimes.size());
-      var buttons = buildPageableButtons();
-      event.replyEmbeds(embed).setEphemeral(false).addActionRow(buttons).queue();
+      var buttons = buildPageableButtons(1, partitionedPlaytimes.size());
+      event.replyEmbeds(embed)
+            .setEphemeral(false)
+            .addActionRow(buttons)
+            .queue();
+
    }
 
    private boolean isButtonPageAction(String buttonId) {
@@ -141,7 +162,7 @@ public class PlayTimeSlashListener extends ListenerAdapter {
       var embeddedTitle = e.getMessage().getEmbeds().get(0).getTitle();
       List<GamePlayTime> playtimes;
       if (embeddedTitle.matches(playtimesSinceTitleRegex)) {
-         // all playtimes
+         // playtimes Since
          final Matcher matcher = playtimesSinceTitleRegexPattern.matcher(embeddedTitle);
          matcher.matches();
          var extractedUsername = matcher.group(1);
@@ -151,8 +172,21 @@ public class PlayTimeSlashListener extends ListenerAdapter {
 
          Instant since = datetimeFormatter.parse(extractedDateString, Instant::from);
          playtimes = this.gameSessionService.getPlayTimeList(user.getId(), since);
+      } else if (embeddedTitle.matches(playtimesBetweenTitleRegex)) {
+         // playtimes between
+         final Matcher matcher = playtimesBetweenTitleRegexPattern.matcher(embeddedTitle);
+         matcher.matches();
+         var extractedUsername = matcher.group(1);
+         var extractedFromDateString = matcher.group(2);
+         var extractedToDateString = matcher.group(3);
+
+         var user = lookupUser(e.getGuild(), extractedUsername);
+
+         Instant from = datetimeFormatter.parse(extractedFromDateString, Instant::from);
+         Instant to = datetimeFormatter.parse(extractedToDateString, Instant::from);
+         playtimes = this.gameSessionService.getPlayTimeList(user.getId(), from, to);
       } else if (embeddedTitle.matches(allPlaytimesTitleRegex)) {
-         // playtime since
+         // all playtimes
          final Matcher matcher = allPlaytimesTitleRegexPattern.matcher(embeddedTitle);
          matcher.matches();
          var extractedUsername = matcher.group(1);
@@ -186,9 +220,10 @@ public class PlayTimeSlashListener extends ListenerAdapter {
       }
 
       var embed = buildPlaytimeEmbed(embeddedTitle, playtimesToDisplay, newPageNumber, partitionedPlaytimes.size());
-      var buttons = buildPageableButtons();
+      var buttons = buildPageableButtons(newPageNumber, partitionedPlaytimes.size());
+
       e.getInteraction().getMessage().editMessageEmbeds(embed).setActionRow(buttons).queue();
-      e.deferEdit().queue();;
+      e.deferEdit().queue();
    }
 
    private User lookupUser(Guild guild, String userName) {
@@ -205,10 +240,27 @@ public class PlayTimeSlashListener extends ListenerAdapter {
       return msg.build();
    }
 
-   private List<Button> buildPageableButtons() {
+   private List<Button> buildPageableButtons(int currentPage, int totalPages) {
       List<Button> buttons = new ArrayList<Button>();
-      buttons.add(Button.primary(PREVIOUS_BUTTON_NAME, Emoji.fromUnicode("⏪")));
-      buttons.add(Button.primary(NEXT_BUTTON_NAME, Emoji.fromUnicode("⏩")));
+      if (totalPages > 1) {
+         // we need buttons
+         if (currentPage == 1) {
+            // we are at the start, don't need the previous button
+            buttons.add(Button.primary(PREVIOUS_BUTTON_NAME, Emoji.fromUnicode("⏪")).asDisabled());
+            buttons.add(Button.primary(NEXT_BUTTON_NAME, Emoji.fromUnicode("⏩")));
+         } else if (currentPage == totalPages) {
+            // on the last page, don't need next button
+            buttons.add(Button.primary(PREVIOUS_BUTTON_NAME, Emoji.fromUnicode("⏪")));
+            buttons.add(Button.primary(NEXT_BUTTON_NAME, Emoji.fromUnicode("⏩")).asDisabled());
+         } else {
+            // need both
+            buttons.add(Button.primary(PREVIOUS_BUTTON_NAME, Emoji.fromUnicode("⏪")));
+            buttons.add(Button.primary(NEXT_BUTTON_NAME, Emoji.fromUnicode("⏩")));
+         }
+      } else {
+         buttons.add(Button.primary(PREVIOUS_BUTTON_NAME, Emoji.fromUnicode("⏪")).asDisabled());
+         buttons.add(Button.primary(NEXT_BUTTON_NAME, Emoji.fromUnicode("⏩")).asDisabled());
+      }
       return buttons;
    }
 

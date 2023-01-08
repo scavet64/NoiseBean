@@ -73,7 +73,8 @@ public class Bot {
                   .addSubcommands(new SubcommandData("all", "See all the time you've wasted!")
                         .addOption(OptionType.USER, "user", "The user to look up. Defaults to the user taking action if one is not provided", false))
                   .addSubcommands(new SubcommandData("since", "See the time you've wasted since a particular time!")
-                        .addOption(OptionType.STRING, "from", "Date formatted like: M/d/yyyy", true)
+                        .addOption(OptionType.STRING, "from", "Get playtimes from this date. Formatted like: M/d/yyyy", true)
+                        .addOption(OptionType.STRING, "to", "Get playtimes until this date. Formatted like: M/d/yyyy", false)
                         .addOption(OptionType.USER, "user", "The user to look up. Defaults to the user taking action if one is not provided", false)))
             .queue();
    }
