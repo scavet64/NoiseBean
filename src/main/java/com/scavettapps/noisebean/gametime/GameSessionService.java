@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +24,6 @@ public class GameSessionService {
    private final GameSessionRepository gameSessionRepository;
    private final NoiseBeanUserService noiseBeanUserService;
 
-   @Autowired
    public GameSessionService(
          GameSessionRepository activeChatterRepository,
          NoiseBeanUserService noiseBeanUserService) {
@@ -110,14 +108,18 @@ public class GameSessionService {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_Id(user.getId());
 
-      return buildGamePlayTimes(sessions);
+      var playtimes = buildGamePlayTimes(sessions);
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+      return playtimes;
    }
 
    public List<GamePlayTime> getPlayTimeList(String userId, Instant since) {
       NoiseBeanUser user = this.noiseBeanUserService.getNoiseBeanUser(userId);
       List<GameSession> sessions = this.gameSessionRepository.findAllByUserId_IdAndSessionStartedAfter(user.getId(), since);
 
-      return buildGamePlayTimes(sessions);
+      var playtimes = buildGamePlayTimes(sessions);
+      playtimes.sort(GamePlayTime.PlayTimeDesc);
+      return playtimes;
    }
 
    public List<GamePlayTime> getPlayTimeList(String userId, int top) {

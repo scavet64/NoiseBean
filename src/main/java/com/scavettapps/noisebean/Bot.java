@@ -21,8 +21,12 @@ import org.springframework.stereotype.Service;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.core.annotation.Order;
 
@@ -61,7 +65,18 @@ public class Bot {
       builder.addEventListeners(eventWaiter);
 
       bot = builder.build();
-   }   
+
+      // Sets the global command list to the provided commands (removing all others)
+      bot.updateCommands().addCommands(
+            new CommandData("ping", "Calculate ping of the bot!"),
+            new CommandData("playtime", "See how much time you've wasted!")
+                  .addSubcommands(new SubcommandData("all", "See all the time you've wasted!")
+                        .addOption(OptionType.USER, "user", "The user to look up. Defaults to the user taking action if one is not provided", false))
+                  .addSubcommands(new SubcommandData("since", "See the time you've wasted since a particular time!")
+                        .addOption(OptionType.STRING, "from", "Date formatted like: M/d/yyyy", true)
+                        .addOption(OptionType.USER, "user", "The user to look up. Defaults to the user taking action if one is not provided", false)))
+            .queue();
+   }
 
    @PreDestroy
    public void shutdownBot() {
