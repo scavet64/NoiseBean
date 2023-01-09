@@ -21,5 +21,5 @@ package com.scavettapps.noisebean.music;
  */
 public class AudioConstants {
    public static final String QUEUE_INFO = "Info about the Queue: (Size - %d)";
-   public static final String QUEUE_DESCRIPTION = "%s **|>**  %s\n%s\n%s %s\n%s";
+   public static final String QUEUE_DESCRIPTION = "%s **|>**  %s\n%s\n%s %s";
 }

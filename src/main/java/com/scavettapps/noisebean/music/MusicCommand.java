@@ -369,15 +369,15 @@ public class MusicCommand extends AbstractCommand {
    private void sendHelpMessage(MessageSender chat) {
       chat.sendEmbed("DJNoiseBeans",
           MessageUtil.stripFormatting(this.prefix) + "music\n"
-          + "         -> play [url]           - Load a song or a playlist\n"
-          + "         -> ytplay [query]  - Search YouTube for a video and load it\n"
-          + "         -> queue                 - View the current queue\n"
-          + "         -> skip                     - Cast a vote to skip the current track\n"
-          + "         -> current               - Display info related to the current track\n"
-          + "         -> forceskip**\\***          - Force a skip\n"
-          + "         -> shuffle**\\***              - Shuffle the queue\n"
-          + "         -> reset**\\***                 - Reset the music player\n\n"
-          + "Commands with an asterisk**\\*** require the __DJ Role__");
+          + "-> play [url] - Load a song or a playlist\n"
+          + "-> ytplay [query] - Search YouTube for a video and load it\n"
+          + "-> queue - View the current queue\n"
+          + "-> skip - Cast a vote to skip the current track\n"
+          + "-> current - Display info related to the current track\n"
+          + "-> forceskip **\\*** - Force a skip\n"
+          + "-> shuffle **\\*** - Shuffle the queue\n"
+          + "-> reset **\\*** - Reset the music player\n\n"
+          + "Commands with an asterisk**\\*** require the __DJ Role__\n");
    }
 
    private String buildQueueMessage(AudioInfo info) {

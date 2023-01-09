@@ -64,8 +64,7 @@ public class ChatBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandl
               getOrNull(track.getInfo().title),
               "",
               MIC,
-              getOrNull(track.getInfo().author),
-              ""
+              getOrNull(track.getInfo().author)
           )
       );
       trackManager.queue(track, author);

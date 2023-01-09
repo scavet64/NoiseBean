@@ -73,7 +73,7 @@ public class LogBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandle
          trackLoaded(playlist.getTracks().get(0));
       } else {
          LOGGER.info(        
-             String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "", "")
+             String.format(QUEUE_DESCRIPTION, DVD, getOrNull(playlist.getName()), "", "", "")
          );
          for (int i = 0; i < Math.min(playlist.getTracks().size(), PLAYLIST_LIMIT); i++) {
             trackManager.queue(playlist.getTracks().get(i), author);

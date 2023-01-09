@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-NoiseBeansApplication<NoiseBean>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.scavettapps.noisebean.NoiseBeansApplication",
+            "projectName": "NoiseBean",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -3,12 +3,14 @@
  */
 package com.scavettapps.noisebean.gametime;
 
-import com.scavettapps.noisebean.users.NoiseBeanUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,74 +21,105 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class GameSessionListener extends ListenerAdapter {
+   private final ArrayList<String> ignoredGames = new ArrayList<String>() {
+      {
+         add("SteamVR");
+         add("Rockstar Games Launcher");
+      }
+   };
 
    private final GameSessionService gameSessionService;
 
    @Autowired
-   public GameSessionListener(
-       GameSessionService gameSessionService
-   ) {
+   public GameSessionListener(GameSessionService gameSessionService) {
       this.gameSessionService = gameSessionService;
    }
 
+   private boolean isGameIgnored(String gameName) {
+      return ignoredGames.stream().anyMatch(x -> x.equals(gameName));
+   }
+
+   private boolean isActivityIgnored(String gameName, User user) {
+      var userId = user.getId();
+      var username = user.getName();
+
+      if (user.isBot()) {
+         log.debug("Ignoring bot's activity [{} - {}]", userId, username);
+         return true;
+      }
+
+      if (isGameIgnored(gameName)) {
+         log.info("Ignoring [{}] activity change for [{} - {}]", gameName, userId, username);
+         return true;
+      }
+
+      return false;
+   }
+
    @Override
-   public void onUserActivityEnd(UserActivityEndEvent event) {
+   public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {
       if (event.getOldActivity().getType() == Activity.ActivityType.DEFAULT) {
 
-         String userId = event.getUser().getId();
-         String gameName = event.getOldActivity().getName();
+         var userId = event.getUser().getId();
+         var username = event.getUser().getName();
 
-         if (gameName.equals("SteamVR")) {
-            log.info("Ignoring SteamVR end for [{}]", userId);
+         var oldActivity = event.getOldActivity();
+         var gameName = oldActivity.getName();
+
+         if (isActivityIgnored(gameName, event.getUser()))
             return;
-         }
-         
+
          // Check to make sure that the activity didnt update its rich presence
          for (var activity : event.getMember().getActivities()) {
-            if (activity.getName().equals(event.getOldActivity().getName())) {
-               log.info("Same activity was detected for user: [{}] game: [{}]",
-                   userId,
-                   gameName
-               );
+            if (activity.getName().equals(gameName)) {
+               log.info(
+                     "Same activity was detected for user: [{} - {}] game: [{}]",
+                     userId,
+                     username,
+                     gameName);
                return;
             }
          }
 
          try {
-            this.gameSessionService.endSession(userId, gameName);
-         } catch (GameSessionDoesNotExist ex) {
-            log.error("Could not find GameSession for user [{}] and game [{}]",
-                userId,
-                gameName
-            );
+            // Does a session exist for this game?
+            if (this.gameSessionService.doesSessionExist(userId, gameName)) {
+               this.gameSessionService.endSession(userId, gameName);
+            } else {
+               // Attempt to create the session manually using information from discord
+               log.info("Attempting to retroactively record GameSession for user [{} - {}] and game [{}]", userId, username, gameName);
+               var timestamps = oldActivity.getTimestamps();
+               if (timestamps != null) {
+                  this.gameSessionService.startNewSession(userId, gameName, timestamps.getStartTime());
+                  this.gameSessionService.endSession(userId, gameName);
+               }
+            }
+
+         } catch (Exception ex) {
+            log.error("Failed to record ending GameSession for user [{} - {}] and game [{}]", userId, username, gameName);
          }
       }
    }
 
    @Override
-   public void onUserActivityStart(UserActivityStartEvent event) {
+   public void onUserActivityStart(@Nonnull UserActivityStartEvent event) {
       if (event.getNewActivity().getType() == Activity.ActivityType.DEFAULT) {
-         String userId = event.getUser().getId();
-         String gameName = event.getNewActivity().getName();
 
-         // TODO: Look into fixing this but for now just ignore steamVR since its blocking other VR games from being recorded
-         if (gameName.equals("SteamVR")) {
-            log.info("Ignoring SteamVR start for [{}]", userId);
+         var userId = event.getUser().getId();
+         var username = event.getUser().getName();
+
+         var activity = event.getNewActivity();
+         var gameName = activity.getName();
+
+         if (isActivityIgnored(gameName, event.getUser()))
             return;
-         }
 
          // Check if a session for this game already exists. If not, start one
          if (this.gameSessionService.doesSessionExist(userId, gameName)) {
-            log.info("GameSession already existed for user [{}] and game [{}]",
-               userId,
-               gameName
-            );
+            log.info("Active GameSession already existed for user [{} - {}] and game [{}]", userId, username, gameName);
          } else {
             this.gameSessionService.startNewSession(userId, gameName);
-            log.info("Started GameSession for user [{}] and game [{}]",
-                    userId,
-                    gameName
-            );
+            log.info("Started GameSession for user [{} - {}] and game [{}]", userId, username, gameName);
          }
       }
    }
