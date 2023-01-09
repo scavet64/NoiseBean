@@ -20,6 +20,8 @@ public interface GameSessionRepository extends JpaRepository<GameSession, Long> 
 
    List<GameSession> findAllByUserId_IdAndSessionStartedAfter(String userId, Instant instant);
 
+   List<GameSession> findAllByUserId_IdAndSessionStartedAfterAndSessionStartedBefore(String userId, Instant from, Instant to);
+
    List<GameSession> findAllByGameName(String gameName);
 
    List<GameSession> findAllByUserId_IdAndGameNameIgnoreCase(String userId, String gameName);

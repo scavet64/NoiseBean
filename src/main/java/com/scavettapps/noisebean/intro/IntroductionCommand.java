@@ -22,12 +22,8 @@ import com.scavettapps.noisebean.core.MessageUtil;
 import com.scavettapps.noisebean.sounds.SoundFile;
 import com.scavettapps.noisebean.sounds.SoundFileNotFoundException;
 import com.scavettapps.noisebean.sounds.SoundFileService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -43,7 +39,6 @@ public class IntroductionCommand extends AbstractCommand {
    private final IntroductionService introductionService;
    private final SoundFileService soundFileService;
 
-   @Autowired
    public IntroductionCommand(
        IntroductionService introductionService,
        SoundFileService soundFileService
@@ -54,7 +49,6 @@ public class IntroductionCommand extends AbstractCommand {
 
    @Override
    public void executeCommand(String[] args, MessageReceivedEvent event, MessageSender chat) {
-      Guild guild = event.getGuild();
 
       if (args.length == 0) {
          sendHelpMessage(chat);

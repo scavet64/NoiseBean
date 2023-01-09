@@ -5,9 +5,6 @@
  */
 package com.scavettapps.noisebean.core;
 
-import com.scavettapps.noisebean.intro.IntroductionCommand;
-import org.springframework.stereotype.Service;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -16,7 +13,6 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.GenericMessageEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -100,7 +96,7 @@ public class MessageSender {
                   break;
                }
             }
-            // If we didnt find one, look for a space I guess
+            // If we didn't find one, look for a space I guess
             if (!split) {
                for (int i = start; i > 0; i--) {
                   if (string.charAt(i) == ' ') {

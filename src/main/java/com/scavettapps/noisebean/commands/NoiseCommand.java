@@ -29,7 +29,6 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +43,6 @@ public class NoiseCommand extends AbstractCommand {
    private final NoiseBeanAudioService noiseBeanAudioService;
    private final SoundFileService soundFileService;
 
-   @Autowired
    public NoiseCommand(
        NoiseBeanAudioManager myManager,
        NoiseBeanAudioService noiseBeanAudioService,

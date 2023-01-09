@@ -8,19 +8,11 @@ package com.scavettapps.noisebean.commands;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
@@ -48,8 +40,9 @@ public abstract class AbstractCommand extends ListenerAdapter {
       return false;
    }
 
+   @SuppressWarnings("null")
    @Override
-   public void onMessageReceived(MessageReceivedEvent e) {
+   public void onMessageReceived(@Nonnull MessageReceivedEvent e) {
       // Checks related to the Event's objects, to prevent concurrency issues.
       if (e.getAuthor() == null || e.getChannel() == null) {
          return;
@@ -68,11 +61,13 @@ public abstract class AbstractCommand extends ListenerAdapter {
             executeCommand(args, e, chat);
          } catch (Exception ex) {
             ex.printStackTrace();
-            String msg = "User: **" + MessageUtil.userDiscrimSet(e.getAuthor())
+            String msg = "User: **" + MessageUtil.userDiscriminatorSet(e.getAuthor())
                 + "**\nMessage:\n*" + MessageUtil.stripFormatting(e.getMessage().getContentDisplay())
                 + "*\n\nError:```java\n" + ex.getLocalizedMessage() + "```";
             if (msg.length() <= 2000) {
-               chat.sendPrivateMessageToUser(msg, e.getJDA().getUserById(adminId));
+               if (adminId != null){
+                  chat.sendPrivateMessageToUser(msg, e.getJDA().getUserById(adminId));
+               }
             }
          }
       }
@@ -100,7 +95,7 @@ public abstract class AbstractCommand extends ListenerAdapter {
 
    private String[] commandArgs(Message msg) {
       String noPrefix = msg.getContentRaw().substring("!".length());
-      if (!noPrefix.contains(" ")) { // No whitespaces -> No args
+      if (!noPrefix.contains(" ")) { // No whitespace -> No args
          return new String[]{};
       }
       return noPrefix.substring(noPrefix.indexOf(" ") + 1).split("\\s+");

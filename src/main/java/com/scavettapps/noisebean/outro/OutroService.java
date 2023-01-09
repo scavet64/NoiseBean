@@ -15,7 +15,6 @@
  */
 package com.scavettapps.noisebean.outro;
 
-import com.scavettapps.noisebean.intro.*;
 import com.scavettapps.noisebean.sounds.SoundFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

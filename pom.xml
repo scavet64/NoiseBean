@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.scavettapps</groupId>
     <artifactId>NoiseBean</artifactId>
-    <version>1.3.6</version>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.1_253</version>
+            <version>4.4.0_350</version>
         </dependency>
         
         <dependency>

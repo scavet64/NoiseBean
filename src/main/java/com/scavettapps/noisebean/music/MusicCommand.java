@@ -7,8 +7,6 @@ package com.scavettapps.noisebean.music;
 
 import com.scavettapps.noisebean.commands.AbstractCommand;
 import com.scavettapps.noisebean.commands.Command;
-import com.scavettapps.noisebean.music.AudioInfo;
-import com.scavettapps.noisebean.music.TrackManager;
 import com.scavettapps.noisebean.core.MessageSender;
 import com.scavettapps.noisebean.core.MessageUtil;
 import static com.scavettapps.noisebean.core.Unicode.CD;
@@ -22,9 +20,6 @@ import static com.scavettapps.noisebean.core.Unicode.WARNING_SIGN;
 import static com.scavettapps.noisebean.core.Unicode.WHITE_HEAVY_CHECKMARK;
 import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_DESCRIPTION;
 import static com.scavettapps.noisebean.music.AudioConstants.QUEUE_INFO;
-import com.scavettapps.noisebean.music.ChatBasedAudioLoadResultHandlerImpl;
-import com.scavettapps.noisebean.music.NoiseBeanAudioManager;
-import com.scavettapps.noisebean.music.NoiseBeanAudioService;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -41,7 +36,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 @Command(name = "music", description = "Play music")
@@ -50,7 +44,6 @@ public class MusicCommand extends AbstractCommand {
    private final NoiseBeanAudioManager myManager;
    private final NoiseBeanAudioService noiseBeanAudioService;
 
-   @Autowired
    public MusicCommand(
        NoiseBeanAudioManager myManager,
        NoiseBeanAudioService noiseBeanAudioService
@@ -232,7 +225,7 @@ public class MusicCommand extends AbstractCommand {
             } else {
                info.addSkip(e.getAuthor());
                tryToDelete(e.getMessage());
-               chat.sendMessage("**" + MessageUtil.userDiscrimSet(e.getAuthor())
+               chat.sendMessage("**" + MessageUtil.userDiscriminatorSet(e.getAuthor())
                    + "** has voted to skip this track! [" + (votes + 1) + "/4]");
             }
          }
@@ -288,7 +281,7 @@ public class MusicCommand extends AbstractCommand {
              .append("\n")
              .append(HEADPHONE)
              .append(" **|>**  ")
-             .append(MessageUtil.userDiscrimSet(
+             .append(MessageUtil.userDiscriminatorSet(
                  this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
              .toString();
 
