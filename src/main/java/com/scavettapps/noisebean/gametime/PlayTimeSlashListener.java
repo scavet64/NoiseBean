@@ -34,7 +34,7 @@ public class PlayTimeSlashListener extends ListenerAdapter {
 
    private static final String NEXT_BUTTON_NAME = "next";
    private static final String PREVIOUS_BUTTON_NAME = "previous";
-   private final String paginationFooterRegex = "Page (\\d)\\/\\d";
+   private final String paginationFooterRegex = "Page (\\d+)\\/\\d+";
    private final Pattern paginationPattern = Pattern.compile(paginationFooterRegex);
 
    private final String allPlaytimesTitleRegex = "All Playtimes for @(.*)";
