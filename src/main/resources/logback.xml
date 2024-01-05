@@ -8,9 +8,8 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <withJansi>true</withJansi>
         <encoder>
-            <pattern>%d{ISO8601} %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable</pattern>
+            <pattern>%d{ISO8601} %highlight(%-5level) [%blue(%t)] %yellow(%C): %msg%n%throwable</pattern>
         </encoder>
     </appender>
  
@@ -19,7 +18,7 @@
         <file>${LOGS}/noisebean_${timestamp}.log</file>
         <encoder
             class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+            <Pattern>%d %p %C [%t] %m%n</Pattern>
         </encoder>
  
         <rollingPolicy

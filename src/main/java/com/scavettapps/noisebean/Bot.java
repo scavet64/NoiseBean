@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;

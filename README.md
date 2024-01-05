@@ -13,31 +13,12 @@ Currently, the bot has the following features:
  - Get a list of the total time played for an individual game
  - Get a list of the total playtime for all games 
  - Creating a list of games and conducting a private election
+ - Slash command to get an embedded list of games separated by pages and can be interacted with.
 
-## Release History
-* 1.3.2
-    * Updated to the latest lavaplayer
-    * Addressed an issue tracking games that implement rich presence
-    * Addressed an issue playing custom sounds
-    * Implemented other minor fixes and tweaks
-* 1.3.1
-    * Implemented sorting for Game Play Times
-	* Addressing an issue regarding voting
-	* Using new version format
-* 0.1.3
-    * Refactored the tracking of user information
-    * Added the ability to track the gametime sessions for members
-    * Added the ability to get a list of gametimes
-* 0.1.2
-    * Added the ability to create a list of games
-    * Added the ability to run a private election in direct messages
-* 0.1.1
-    * Added the ability to upload custom sounds and play them
-    * Added the ability to add custom introductions
-    * Added the ability to add custom outros
-* 0.1.0
-    * Initial development of the bot
-    * Implemented playing of youtube videos over voicechat
+## Planned Features
+ - Moving to an external database instead of SQLite
+ - Adding a soundboard slash command
+ - Adding a "Wrapped" feature that sums up the play sessions for the year
 
 ## Copyright
 
