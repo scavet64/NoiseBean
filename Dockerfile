@@ -17,7 +17,7 @@ RUN mvn install -DskipTests
 ## Build the final image using artifacts from the build step
 FROM openjdk:11-jre-slim
 
-COPY --from=build /usr/src/app/target/NoiseBean-1.3.4.jar /app/NoiseBean-1.3.4.jar
+COPY --from=build /usr/src/app/target/NoiseBean*.jar /app/NoiseBean.jar
 
 WORKDIR /app
 
@@ -25,4 +25,4 @@ RUN mkdir data
 
 ENV PORT 8443
 EXPOSE $PORT
-CMD ["java", "-jar", "NoiseBean-1.3.4.jar"]
+CMD ["java", "-jar", "NoiseBean.jar"]
