@@ -89,3 +89,4 @@ noisebean.db.mv.db
 
 logs/
 .target
+postgres-data
