@@ -96,7 +96,11 @@ public class Bot {
          ex.printStackTrace();
       }
 
-      return prop.getProperty("apikey");
+      var key = prop.getProperty("apikey");
+      if (key == null) {
+         key = System.getenv().get("APIKEY");
+      }
+      return key;
    }
 
    public void registerCommands(JDABuilder builder) throws ConfigurationException {
