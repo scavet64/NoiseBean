@@ -57,7 +57,6 @@ public class GameSessionListener extends ListenerAdapter {
    @Override
    public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {
       if (event.getOldActivity().getType() == Activity.ActivityType.DEFAULT) {
-
          var userId = event.getUser().getId();
          var username = event.getUser().getName();
 
@@ -70,7 +69,7 @@ public class GameSessionListener extends ListenerAdapter {
          // Check to make sure that the activity didn't update its rich presence
          for (var activity : event.getMember().getActivities()) {
             if (activity.getName().equals(gameName)) {
-               log.info(
+               log.debug(
                      "Same activity was detected for user: [{} - {}] game: [{}]",
                      userId,
                      username,
