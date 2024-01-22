@@ -24,7 +24,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface VoiceSessionRepository extends JpaRepository<VoiceSession, Long> {
    
-   //Optional<VoiceSession> findByUserId(String userId);
-
    Optional<VoiceSession> findByUserId_IdAndSessionEndedIsNull(String userId);
 }

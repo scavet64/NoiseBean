@@ -36,18 +36,6 @@ public class VoiceSessionService {
       this.voiceSessionRepository = voiceSessionRepository;
    }
 
-   /**
-    * Returns null if the user does not have an introduction set.
-    *
-    * @param userId The user's ID
-    * @return The Users introduction. Null if the introduction was never set.
-    */
-   public VoiceSession GetCurrentSession(String userId) {
-      return this.voiceSessionRepository
-            .findByUserId_IdAndSessionEndedIsNull(userId)
-            .orElse(null);
-   }
-
    public VoiceSession startNewSession(NoiseBeanUser noiseBeanUser, String channelName) {
       VoiceSession newSession = VoiceSession.builder()
             .channelName(channelName)

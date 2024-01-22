@@ -29,8 +29,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class VoiceSessionListener extends ListenerAdapter {
 
-   // private static final Logger LOGGER = LoggerFactory.getLogger(VoiceSessionListener.class);
-
    private final VoiceSessionService voiceSessionService;
    private final NoiseBeanUserService noiseBeanUserService;
 
@@ -68,7 +66,7 @@ public class VoiceSessionListener extends ListenerAdapter {
       var noiseBeanUser = noiseBeanUserService.getNoiseBeanUser(event.getMember().getId());
 
       try {
-         // Does a session exist for this game?
+         // Does a session exist for this user?
          if (this.voiceSessionService.doesSessionExist(noiseBeanUser)) {
             this.voiceSessionService.endSession(noiseBeanUser);
          } else {
