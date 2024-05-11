@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -27,13 +28,12 @@ public class NoiseBeanUserListener extends ListenerAdapter {
    }
 
    @Override
-   public void onGuildAvailable(GuildAvailableEvent event) {
+   public void onGuildAvailable(@Nonnull GuildAvailableEvent event) {
       // Make sure all the users are accounted for.
-      
    }
 
    @Override
-   public void onGuildReady(GuildReadyEvent event) {
+   public void onGuildReady(@Nonnull GuildReadyEvent event) {
       for (Member member : event.getGuild().getMembers()) {
          NoiseBeanUser nbUser = this.noiseBeanUserService.getNoiseBeanUser(member.getIdLong());
          if (nbUser == null) {

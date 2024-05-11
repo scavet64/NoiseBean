@@ -36,7 +36,7 @@ public class GameSession {
    
    @NotNull
    @ManyToOne
-   @JoinColumn(columnDefinition = "user_id", referencedColumnName = "noisebean_user_id", name = "user_id")
+   @JoinColumn(referencedColumnName = "noisebean_user_id", name = "user_id")
    private NoiseBeanUser userId;
    
    @NotNull

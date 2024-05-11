@@ -6,7 +6,6 @@ package com.scavettapps.noisebean.gametime;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.user.UserActivityEndEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -58,7 +57,6 @@ public class GameSessionListener extends ListenerAdapter {
    @Override
    public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {
       if (event.getOldActivity().getType() == Activity.ActivityType.DEFAULT) {
-
          var userId = event.getUser().getId();
          var username = event.getUser().getName();
 
@@ -71,7 +69,7 @@ public class GameSessionListener extends ListenerAdapter {
          // Check to make sure that the activity didn't update its rich presence
          for (var activity : event.getMember().getActivities()) {
             if (activity.getName().equals(gameName)) {
-               log.info(
+               log.debug(
                      "Same activity was detected for user: [{} - {}] game: [{}]",
                      userId,
                      username,
@@ -115,7 +113,7 @@ public class GameSessionListener extends ListenerAdapter {
 
          // Check if a session for this game already exists. If not, start one
          if (this.gameSessionService.doesSessionExist(userId, gameName)) {
-            log.info("Active GameSession already existed for user [{} - {}] and game [{}]", userId, username, gameName);
+            log.debug("Active GameSession already existed for user [{} - {}] and game [{}]", userId, username, gameName);
          } else {
             this.gameSessionService.startNewSession(userId, gameName);
             log.info("Started GameSession for user [{} - {}] and game [{}]", userId, username, gameName);

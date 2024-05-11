@@ -88,3 +88,5 @@ noisebean-sqlite.db
 noisebean.db.mv.db
 
 logs/
+.target
+postgres-data
