@@ -113,7 +113,7 @@ public class GameSessionListener extends ListenerAdapter {
 
          // Check if a session for this game already exists. If not, start one
          if (this.gameSessionService.doesSessionExist(userId, gameName)) {
-            log.info("Active GameSession already existed for user [{} - {}] and game [{}]", userId, username, gameName);
+            log.debug("Active GameSession already existed for user [{} - {}] and game [{}]", userId, username, gameName);
          } else {
             this.gameSessionService.startNewSession(userId, gameName);
             log.info("Started GameSession for user [{} - {}] and game [{}]", userId, username, gameName);

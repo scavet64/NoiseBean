@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ public class GameSession {
    
    @NotNull
    @ManyToOne
+   @JoinColumn(referencedColumnName = "noisebean_user_id", name = "user_id")
    private NoiseBeanUser userId;
    
    @NotNull

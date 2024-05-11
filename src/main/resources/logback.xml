@@ -15,7 +15,7 @@
  
     <appender name="RollingFile"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS}/noisebean_${timestamp}.log</file>
+        <file>${LOGS}/noisebean.log</file>
         <encoder
             class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C [%t] %m%n</Pattern>
@@ -23,12 +23,12 @@
  
         <rollingPolicy
             class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <!-- rollover daily and when the file reaches 50 MegaBytes -->
             <fileNamePattern>${LOGS}/archived/noisebean-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                 class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
+                <maxFileSize>50MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
     </appender>
