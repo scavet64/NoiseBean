@@ -20,7 +20,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerOptions;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.remote.RemoteNodeRegistry;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageInput;
 import com.sedmelluq.discord.lavaplayer.tools.io.MessageOutput;
@@ -53,11 +52,6 @@ public class NoiseBeanAudioManager extends DefaultAudioPlayerManager {
    @Override
    public void setHttpRequestConfigurator(Function<RequestConfig, RequestConfig> configurator) {
       super.setHttpRequestConfigurator(configurator); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public RemoteNodeRegistry getRemoteNodeRegistry() {
-      return super.getRemoteNodeRegistry(); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
@@ -168,11 +162,6 @@ public class NoiseBeanAudioManager extends DefaultAudioPlayerManager {
    @Override
    public void enableGcMonitoring() {
       super.enableGcMonitoring(); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public void useRemoteNodes(String... nodeAddresses) {
-      super.useRemoteNodes(nodeAddresses); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override

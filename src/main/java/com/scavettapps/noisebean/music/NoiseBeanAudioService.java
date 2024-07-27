@@ -16,6 +16,7 @@
 package com.scavettapps.noisebean.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,8 @@ public class NoiseBeanAudioService {
 
    @Autowired
    public NoiseBeanAudioService(NoiseBeanAudioManager myManager) {
+      YoutubeAudioSourceManager ytSourceManager = new YoutubeAudioSourceManager();
+      myManager.registerSourceManager(ytSourceManager);
       this.myManager = myManager;
    }
  

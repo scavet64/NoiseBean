@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * To change this license header, choose License Headers in Project Properties. To change this
+ * template file, choose Tools | Templates and open the template in the editor.
  */
 package com.scavettapps.noisebean.music;
 
@@ -45,9 +44,8 @@ public class MusicCommand extends AbstractCommand {
    private final NoiseBeanAudioService noiseBeanAudioService;
 
    public MusicCommand(
-       NoiseBeanAudioManager myManager,
-       NoiseBeanAudioService noiseBeanAudioService
-   ) {
+         NoiseBeanAudioManager myManager,
+         NoiseBeanAudioService noiseBeanAudioService) {
       this.myManager = myManager;
       this.noiseBeanAudioService = noiseBeanAudioService;
       AudioSourceManagers.registerRemoteSources(myManager);
@@ -199,7 +197,7 @@ public class MusicCommand extends AbstractCommand {
          forceSkipTrack(guild, chat);
       } else {
          chat.sendMessage("You don't have permission to do that!\n" + "Use **"
-             + MessageUtil.stripFormatting(this.prefix) + "music skip** to cast a vote!");
+               + MessageUtil.stripFormatting(this.prefix) + "music skip** to cast a vote!");
       }
    }
 
@@ -213,8 +211,7 @@ public class MusicCommand extends AbstractCommand {
          forceSkipTrack(guild, chat);
       } else {
          AudioInfo info = this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(
-             this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack()
-         );
+               this.noiseBeanAudioService.getPlayer(guild).getPlayingTrack());
          if (info.hasVoted(e.getAuthor())) {
             chat.sendMessage(WARNING_SIGN + " You've already voted to skip this song!");
          } else {
@@ -226,7 +223,7 @@ public class MusicCommand extends AbstractCommand {
                info.addSkip(e.getAuthor());
                tryToDelete(e.getMessage());
                chat.sendMessage("**" + MessageUtil.userDiscriminatorSet(e.getAuthor())
-                   + "** has voted to skip this track! [" + (votes + 1) + "/4]");
+                     + "** has voted to skip this track! [" + (votes + 1) + "/4]");
             }
          }
       }
@@ -240,7 +237,7 @@ public class MusicCommand extends AbstractCommand {
    private void queueSubcommand(MessageReceivedEvent e, MessageSender chat, Guild guild) {
       if (!this.noiseBeanAudioService.hasPlayer(guild) || this.noiseBeanAudioService.getTrackManager(guild).getQueuedTracks().isEmpty()) {
          chat.sendMessage("The queue is empty! Load a song with **" + MessageUtil.stripFormatting(this.prefix)
-             + "music play**!");
+               + "music play**!");
       } else {
          StringBuilder sb = new StringBuilder();
          Set<AudioInfo> queue = this.noiseBeanAudioService.getTrackManager(guild).getQueuedTracks();
@@ -262,36 +259,36 @@ public class MusicCommand extends AbstractCommand {
          StringBuilder trackInfoBuilder = new StringBuilder();
 
          String trackInfo = trackInfoBuilder
-             .append("\n")
-             .append(STOPWATCH)
-             .append(" **|>** `[ ")
-             .append(getTimestamp(track.getPosition()))
-             .append(" / ")
-             .append(getTimestamp(track.getInfo().length)).append(" ]`").toString();
+               .append("\n")
+               .append(STOPWATCH)
+               .append(" **|>** `[ ")
+               .append(getTimestamp(track.getPosition()))
+               .append(" / ")
+               .append(getTimestamp(track.getInfo().length)).append(" ]`").toString();
 
          StringBuilder authorInfoBuilder = new StringBuilder();
          String authorInfo = authorInfoBuilder
-             .append("\n")
-             .append(MIC)
-             .append(getOrNull(track.getInfo().author))
-             .toString();
+               .append("\n")
+               .append(MIC)
+               .append(getOrNull(track.getInfo().author))
+               .toString();
 
          StringBuilder requestingUserBuilder = new StringBuilder();
          String reqUser = requestingUserBuilder
-             .append("\n")
-             .append(HEADPHONE)
-             .append(" **|>**  ")
-             .append(MessageUtil.userDiscriminatorSet(
-                 this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
-             .toString();
+               .append("\n")
+               .append(HEADPHONE)
+               .append(" **|>**  ")
+               .append(MessageUtil.userDiscriminatorSet(
+                     this.noiseBeanAudioService.getTrackManager(guild).getTrackInfo(track).getAuthor().getUser()))
+               .toString();
 
          chat.sendEmbed("Track Info", String.format(
-             QUEUE_DESCRIPTION,
-             CD,
-             getOrNull(track.getInfo().title),
-             trackInfo,
-             authorInfo,
-             reqUser));
+               QUEUE_DESCRIPTION,
+               CD,
+               getOrNull(track.getInfo().title),
+               trackInfo,
+               authorInfo,
+               reqUser));
       }
    }
 
@@ -304,9 +301,9 @@ public class MusicCommand extends AbstractCommand {
       }
       TrackManager manager = this.noiseBeanAudioService.getTrackManager(event.getGuild());
       manager.getQueuedTracks().stream()
-          .filter(info -> !info.getTrack().equals(this.noiseBeanAudioService.getPlayer(event.getGuild()).getPlayingTrack())
-          && info.getAuthor().getUser().equals(event.getMember().getUser()))
-          .forEach(manager::remove);
+            .filter(info -> !info.getTrack().equals(this.noiseBeanAudioService.getPlayer(event.getGuild()).getPlayingTrack())
+                  && info.getAuthor().getUser().equals(event.getMember().getUser()))
+            .forEach(manager::remove);
    }
 
    @Override
@@ -330,10 +327,9 @@ public class MusicCommand extends AbstractCommand {
       this.noiseBeanAudioService.getPlayer(guild); // Make sure this guild has a player.
 
       msg.getTextChannel().sendTyping().queue();
-      myManager.loadItemOrdered(guild, 
-          identifier, 
-          new ChatBasedAudioLoadResultHandlerImpl(chat, identifier, guild, author, noiseBeanAudioService.getTrackManager(guild))
-      );
+      myManager.loadItem(
+            identifier,
+            new ChatBasedAudioLoadResultHandlerImpl(chat, identifier, guild, author, noiseBeanAudioService.getTrackManager(guild)));
       tryToDelete(msg);
    }
 
@@ -343,7 +339,7 @@ public class MusicCommand extends AbstractCommand {
 
    private boolean isCurrentDj(Member member) {
       return this.noiseBeanAudioService.getTrackManager(member.getGuild()).getTrackInfo(this.noiseBeanAudioService.getPlayer(member.getGuild()).getPlayingTrack())
-          .getAuthor().equals(member);
+            .getAuthor().equals(member);
    }
 
    private boolean isIdle(MessageSender chat, Guild guild) {
@@ -361,16 +357,16 @@ public class MusicCommand extends AbstractCommand {
 
    private void sendHelpMessage(MessageSender chat) {
       chat.sendEmbed("DJNoiseBeans",
-          MessageUtil.stripFormatting(this.prefix) + "music\n"
-          + "-> play [url] - Load a song or a playlist\n"
-          + "-> ytplay [query] - Search YouTube for a video and load it\n"
-          + "-> queue - View the current queue\n"
-          + "-> skip - Cast a vote to skip the current track\n"
-          + "-> current - Display info related to the current track\n"
-          + "-> forceskip **\\*** - Force a skip\n"
-          + "-> shuffle **\\*** - Shuffle the queue\n"
-          + "-> reset **\\*** - Reset the music player\n\n"
-          + "Commands with an asterisk**\\*** require the __DJ Role__\n");
+            MessageUtil.stripFormatting(this.prefix) + "music\n"
+                  + "-> play [url] - Load a song or a playlist\n"
+                  + "-> ytplay [query] - Search YouTube for a video and load it\n"
+                  + "-> queue - View the current queue\n"
+                  + "-> skip - Cast a vote to skip the current track\n"
+                  + "-> current - Display info related to the current track\n"
+                  + "-> forceskip **\\*** - Force a skip\n"
+                  + "-> shuffle **\\*** - Shuffle the queue\n"
+                  + "-> reset **\\*** - Reset the music player\n\n"
+                  + "Commands with an asterisk**\\*** require the __DJ Role__\n");
    }
 
    private String buildQueueMessage(AudioInfo info) {

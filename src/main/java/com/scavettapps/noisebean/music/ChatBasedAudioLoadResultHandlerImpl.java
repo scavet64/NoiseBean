@@ -86,8 +86,8 @@ public class ChatBasedAudioLoadResultHandlerImpl implements AudioLoadResultHandl
             trackManager.queue(playlist.getTracks().get(i), author);
          }
       }
+      
    }
-
    @Override
    public void noMatches() {
       chat.sendEmbed(String.format(ERROR, identifier), WARNING_SIGN + " No playable tracks were found.");
