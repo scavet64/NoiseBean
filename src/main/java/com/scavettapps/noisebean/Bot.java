@@ -3,7 +3,6 @@
  */
 package com.scavettapps.noisebean;
 
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.scavettapps.noisebean.core.ConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,9 +41,6 @@ public class Bot {
    @Autowired
    private List<? extends ListenerAdapter> list;
 
-   @Autowired
-   private EventWaiter eventWaiter;
-
    private JDA bot;
    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,7 +57,6 @@ public class Bot {
       builder.setBulkDeleteSplittingEnabled(false);
       builder.setActivity(Activity.listening("Cozy Music"));
       builder.enableCache(CacheFlag.ACTIVITY);
-      builder.addEventListeners(eventWaiter);
 
       bot = builder.build();
 
